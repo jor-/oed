@@ -1,0 +1,329 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>User's guide</title><meta name="generator" content="MATLAB 7.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-10-01"><meta name="DC.source" content="Users_guide.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>User's guide</h1><!--introduction--><p>This user's guide demonstrates the features of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> and their application.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Specify the model</a></li><li><a href="#6">Creating and configuring an <tt>solver</tt> object</a></li><li><a href="#11">Optimizing measuring points</a></li><li><a href="#13">Quality of measuring points</a></li><li><a href="#14">Estimating model parameters</a></li><li><a href="#15">Changing the options</a></li></ul></div><h2>Specify the model<a name="1"></a></h2><p>The first step to optimizing of model parameters or corresponding measurement conditions with the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> is to specify the model function. This is done by providing an object that implements the <a href="matlab:doc('model')"><tt>model</tt></a> interface, which prescribes methods for the model function and its first and second derivative with respect to the model parameters.</p><pre class="codeinput">model_object = model_class();
+</pre><p>If the model function is given in an explicit form you can use the <a href="matlab:doc('model_explicit')"><tt>model_explicit</tt></a> class. The necessary function values and derivatives will then be calculated automatically.</p><pre class="codeinput">model_object = model_explicit(model_function, parameter, dependent_variable);
+</pre><p>If the model function is given as an initial value problem you can use the <a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a> class. There only the initial value problem must be specified. The necessary function values and derivatives will then be calculated automatically.</p><pre class="codeinput">model_object = model_ivp(dependent_variable, independent_variable, parameter, <span class="keyword">...</span>
+    differential_equation, integration_interval, starting_point);
+</pre><p>If you are using the <a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a> class you can obtain a speedup by calculating the necessary derivations of the model in parallel. To achieve that you only have to open a <tt>matlabpool</tt> before the calulations.</p><pre class="codeinput">matlabpool <span class="string">open</span> <span class="string">number_of_cores</span>
+</pre><p>If you have an arbitrary implementation of the model function without the derivatives with respect to the parameters you can implement the <a href="matlab:doc('model_fd')"><tt>model_fd</tt></a> interface instead of the <a href="matlab:doc('model')"><tt>model</tt></a> interface. This provides the first and second derivatives with respect to the parameters by finite differences approximations.</p><h2>Creating and configuring an <tt>solver</tt> object<a name="6"></a></h2><p>The next step is to create and configure an <a href="matlab:doc('solver')"><tt>solver</tt></a> object. First of all you have to create an <a href="matlab:doc('solver')"><tt>solver</tt></a> object via the <a href="matlab:doc('solver.solver')"><tt>constructor</tt></a>.</p><pre class="codeinput">solver_object = solver(model_object, <span class="keyword">...</span>
+    parameter_estimation, measuring_points, corresponding_variances);
+</pre><p>Then you have to pass the previously created <a href="matlab:doc('model')"><tt>model</tt></a> object presenting your model function to your <a href="matlab:doc('solver')"><tt>solver</tt></a> object. This can be done via the <a href="matlab:doc('solver.solver')"><tt>constructor</tt></a> or the <a href="matlab:doc('solver.set_model')"><tt>set_model</tt></a> method.</p><pre class="codeinput">solver_object.set_model(model_object);
+</pre><p>Further an approximation of the parameter values must be specified via the <a href="matlab:doc('solver.solver')"><tt>constructor</tt></a> or the <a href="matlab:doc('solver.set_initial_parameter_estimation')"><tt>set_initial_parameter_estimation</tt></a> method. This can arise for example from experience or previous measurements.</p><pre class="codeinput">solver_object.set_initial_parameter_estimation(parameter_estimation);
+</pre><p>Next you have to specify possible measuring points and there corresponding variances of the measurement errors. This can be done via the <a href="matlab:doc('solver.solver')"><tt>constructor</tt></a> and the <a href="matlab:doc('solver.set_possible_measurements')"><tt>set_possible_measurements</tt></a> method.</p><pre class="codeinput">solver_object.set_possible_measurements(measuring_points, <span class="keyword">...</span>
+    corresponding_variances);
+</pre><p>If you already have done previous measurements, this can be included. The measuring points and there corresponding variances of the measurement errors can be set via the <a href="matlab:doc('solver.set_accomplished_measurements')"><tt>set_accomplished_measurements</tt></a> method.</p><pre class="codeinput">solver_object.set_accomplished_measurements(measuring_points, <span class="keyword">...</span>
+    corresponding_variances, measuring_results);
+</pre><h2>Optimizing measuring points<a name="11"></a></h2><p>Now you can calculate the optimal measuring points by using the <a href="matlab:doc('solver.get_optimized_weightings')"><tt>get_optimized_weightings</tt></a> method of your solver object. The result of the <a href="matlab:doc('solver.get_optimized_weightings')"><tt>get_optimized_weightings</tt></a> method is a weighting 0 or 1 for each measuring points. 1 means the measuring point has been chosen and 0 means the measuring point has not been chosen. You can pass linear constraints to the measuring points. Thereby, for example, a restriction to the cost of the measurements can be achieved.</p><pre class="codeinput">weightings = solver_object.get_optimized_weightings(A, b);
+</pre><p>A common case is that the number of selected measurements should be restricted. This can be achieved directly as follows.</p><pre class="codeinput">weightings = solver_object.get_optimized_weightings(maximal);
+</pre><h2>Quality of measuring points<a name="13"></a></h2><p>You can also calculate the quality of a set of measuring points with the <a href="matlab:doc('solver.get_quality')"><tt>get_quality</tt></a> method. This allows, for example, to calculate the quality resulting by omitting some measurements.</p><pre class="codeinput">quality = solver_object.get_quality(weightings);
+</pre><h2>Estimating model parameters<a name="14"></a></h2><p>If you have done previous measurements you can estimate the model parameters with your measurement results. For that you can use the <a href="matlab:doc('solver.get_optimized_parameters')"><tt>get_optimized_parameters</tt></a> method.</p><pre class="codeinput">parameter = solver_object.get_optimized_parameters(lower_bound, upper_bound);
+</pre><h2>Changing the options<a name="15"></a></h2><p>The options for the optimization of the experimental design are stored in an <a href="matlab:doc('solver_options')"><tt>solver_options</tt></a> object. To change these options you have to pass an an <a href="matlab:doc('solver_options')"><tt>solver_options</tt></a> with your desired options to your <a href="matlab:doc('solver')"><tt>solver</tt></a> object.</p><pre class="codeinput">solver_object.set_options(solver_options);
+</pre><p>At the instantiation of your <a href="matlab:doc('solver_options')"><tt>solver_options</tt></a> object you can pass your desired (non-default) options to the <a href="matlab:doc('solver_options.solver_options')"><tt>constructor</tt></a>.</p><pre class="codeinput">solver_options_object = solver_options(<span class="keyword">...</span>
+    <span class="string">'option1'</span>, value1, <span class="string">'option2'</span>, value2, <span class="keyword">...</span><span class="comment">);</span>
+</pre><p>It is also possible to set your desired options after the instantiation of your <a href="matlab:doc('solver_options')"><tt>solver_options</tt></a> object with the <a href="matlab:doc('solver_options.set_option')"><tt>set_option</tt></a> method.</p><pre class="codeinput">solver_options_object.set_option(<span class="string">'option1'</span>, value1);
+solver_options_object.set_option(<span class="string">'option2'</span>, value2);
+</pre><p>The possible options for the experimental design are</p><div><ul><li><tt>'parameter_estimation'</tt>: whether a parameter estimation should be performed befor the optimal design estimation or not (<i>possible values:</i> <tt>'yes'</tt>, <tt>'no'</tt>, <i>default:</i> <tt>'no'</tt>)</li></ul></div><div><ul><li><tt>'estimation_method'</tt>: the method of the estimation of the quality of the experimental design (<i>possible values:</i> <tt>'point'</tt>, <tt>'region'</tt>, <i>default:</i> <tt>'region'</tt>)</li></ul></div><div><ul><li><tt>'alpha'</tt>: the confidence level for the region estimation (<i>possible value:</i> a scalar with <tt>0 &lt; alpha &lt; 1</tt>, <i>default:</i> <tt>0.95</tt>)</li></ul></div><div><ul><li><tt>'debug'</tt>: the level of debug information to be displayed (<i>possible values:</i> a non-negative integer, <i>default:</i> <tt>0</tt> (no debug informations))</li></ul></div><div><ul><li><tt>'criterion'</tt>: the criterion for the quality of an experimental design (<i>possible values:</i> an object of the <a href="matlab:doc('criterion')"><tt>criterion</tt></a> class, <i>default:</i> a <a href="matlab:doc('criterion_A')"><tt>criterion_A</tt></a> object)</li></ul></div><div><ul><li><tt>'scale_covariance_matrix'</tt>:  whether the covariance matrix should be scaled or not (<i>possible values:</i> <tt>'yes'</tt>, <tt>'no'</tt>, <i>default:</i> <tt>'yes'</tt>)</li></ul></div><div><ul><li><tt>'solver_edo_options'</tt>: the solver to be used to solve the experimental design optimization problem (<i>possible values:</i> an object of the <a href="matlab:doc('solver_edo_options')"><tt>solver_edo_options</tt></a> class, <i>default:</i> a default <a href="matlab:doc('solver_edo_options')"><tt>solver_edo_options</tt></a> object)</li></ul></div><p>The options for the solver of the experimental design optimization problem are stored in a <a href="matlab:doc('solver_edo_options')"><tt>solver_edo_options</tt></a> object. They can be set via the <a href="matlab:doc('solver_edo_options.solver_edo_options')"><tt>constructor</tt></a>.</p><pre class="codeinput">solver_edo_options_object = solver_edo_options(<span class="string">'option1'</span>, value1, <span class="string">'option2'</span>, value2, <span class="keyword">...</span><span class="comment">);</span>
+</pre><p>You can change the options also after the instantiation with the <a href="matlab:doc('solver_options.set_option')"><tt>set_option</tt></a> method.</p><pre class="codeinput">solver_edo_options_object.set_option(<span class="string">'option1'</span>, value1);
+solver_edo_options_object.set_option(<span class="string">'option2'</span>, value2);
+</pre><p>The possible options for the solver are</p><div><ul><li><tt>'algorithm'</tt>: the method to be used to solve the experimental design optimization problem (<i>possible values</i>: <tt>'direct'</tt>, <tt>'local_sqp'</tt>, <i>default</i>: <tt>'local_sqp'</tt>)</li><li><tt>'max_fun_evals'</tt>: the number of maximal model evaluations done by the solver (<i>possible values</i>: a non-negative integer, <i>default</i>: <tt>10^3</tt>)</li><li><tt>'max_iter'</tt>: the number of maximal iterations of the solver (<i>possible values</i>: a  non-negative integer, <i>default</i>: <tt>5*10^1</tt>)</li></ul></div><p class="footer"><br>
+      Published with MATLAB&reg; 7.13<br></p></div><!--
+##### SOURCE BEGIN #####
+%% User's guide
+% This user's guide demonstrates the features of the
+% <matlab:doc('optimal_experimental_design_toolbox') |Optimal Experimental Design Toolbox|>
+% and their application.
+
+
+
+%% Specify the model
+% The first step to optimizing of model parameters or corresponding
+% measurement conditions with the <matlab:doc('optimal_experimental_design_toolbox')
+% |Optimal Experimental Design Toolbox|> is to specify the model function. This is
+% done by providing an object that implements the <matlab:doc('model')
+% |model|> interface, which prescribes methods for the model function and
+% its first and second derivative with respect to the model parameters.
+
+model_object = model_class();
+
+%%
+% If the model function is given in an explicit form you can use the
+% <matlab:doc('model_explicit') |model_explicit|> class. The necessary
+% function values and derivatives will then be calculated automatically.
+
+model_object = model_explicit(model_function, parameter, dependent_variable);
+%%
+% If the model function is given as an initial value problem you can use
+% the <matlab:doc('model_ivp') |model_ivp|> class. There only the initial
+% value problem must be specified. The necessary function values and
+% derivatives will then be calculated automatically.
+
+model_object = model_ivp(dependent_variable, independent_variable, parameter, ...
+    differential_equation, integration_interval, starting_point);
+
+%%
+% If you are using the <matlab:doc('model_ivp') |model_ivp|> class you can
+% obtain a speedup by calculating the necessary derivations of the model
+% in parallel. To achieve that you only have to open a |matlabpool| before
+% the calulations. 
+
+matlabpool open number_of_cores
+
+%%
+% If you have an arbitrary implementation of the model function without the
+% derivatives with respect to the parameters you can implement the
+% <matlab:doc('model_fd') |model_fd|> interface instead of the
+% <matlab:doc('model') |model|> interface. This provides the first and
+% second derivatives with respect to the parameters by finite differences
+% approximations.
+
+
+
+
+
+
+%% Creating and configuring an |solver| object
+% The next step is to create and configure an <matlab:doc('solver')
+% |solver|> object. First of all you have to create an 
+% <matlab:doc('solver') |solver|> object via the
+% <matlab:doc('solver.solver') |constructor|>.
+
+solver_object = solver(model_object, ... 
+    parameter_estimation, measuring_points, corresponding_variances);
+
+%%
+% Then you have to pass the previously created <matlab:doc('model')
+% |model|> object presenting your model function to your
+% <matlab:doc('solver') |solver|> object. This can be done via the
+% <matlab:doc('solver.solver') |constructor|> or
+% the <matlab:doc('solver.set_model') |set_model|> method.
+
+solver_object.set_model(model_object);
+
+%%
+% Further an approximation of the parameter values must be specified via
+% the <matlab:doc('solver.solver') |constructor|>
+% or the <matlab:doc('solver.set_initial_parameter_estimation')
+% |set_initial_parameter_estimation|> method. This can arise for example
+% from experience or previous measurements.
+
+solver_object.set_initial_parameter_estimation(parameter_estimation);
+
+%%
+% Next you have to specify possible measuring points and there
+% corresponding variances of the measurement errors. This can be done via
+% the <matlab:doc('solver.solver') |constructor|>
+% and the <matlab:doc('solver.set_possible_measurements')
+% |set_possible_measurements|> method.
+
+solver_object.set_possible_measurements(measuring_points, ...
+    corresponding_variances);
+
+%%
+% If you already have done previous measurements, this can be included. The
+% measuring points and there corresponding variances of the measurement
+% errors can be set via the
+% <matlab:doc('solver.set_accomplished_measurements')
+% |set_accomplished_measurements|> method.
+
+solver_object.set_accomplished_measurements(measuring_points, ...
+    corresponding_variances, measuring_results);
+
+
+
+
+
+%% Optimizing measuring points
+% Now you can calculate the optimal measuring points by using the
+% <matlab:doc('solver.get_optimized_weightings')
+% |get_optimized_weightings|> method of your solver object.
+% The result of the <matlab:doc('solver.get_optimized_weightings')
+% |get_optimized_weightings|> method is a weighting 0 or 1 for each
+% measuring points. 1 means the measuring point has been chosen and 0 means
+% the measuring point has not been chosen. You can pass linear constraints
+% to the measuring points. Thereby, for example, a restriction to the cost
+% of the measurements can be achieved.
+
+weightings = solver_object.get_optimized_weightings(A, b);
+
+%%
+% A common case is that the number of selected measurements should be
+% restricted. This can be achieved directly as follows. 
+
+weightings = solver_object.get_optimized_weightings(maximal);
+
+
+
+
+
+%% Quality of measuring points
+% You can also calculate the quality of a set of measuring points with the
+% <matlab:doc('solver.get_quality') |get_quality|> method. This allows, for
+% example, to calculate the quality resulting by omitting some measurements.
+    
+quality = solver_object.get_quality(weightings);
+
+
+
+
+
+%% Estimating model parameters
+% If you have done previous measurements you can estimate the model
+% parameters with your measurement results. For that you can use the
+% <matlab:doc('solver.get_optimized_parameters')
+% |get_optimized_parameters|> method.
+
+parameter = solver_object.get_optimized_parameters(lower_bound, upper_bound);
+
+
+
+
+
+%% Changing the options
+% The options for the optimization of the experimental design are stored in
+% an <matlab:doc('solver_options') |solver_options|> object. To change
+% these options you have to pass an an <matlab:doc('solver_options')
+% |solver_options|> with your desired options to your
+% <matlab:doc('solver') |solver|> object.
+
+solver_object.set_options(solver_options);
+
+%%
+% At the instantiation of your <matlab:doc('solver_options')
+% |solver_options|> object you can pass your desired
+% (non-default) options to the
+% <matlab:doc('solver_options.solver_options')
+% |constructor|>.
+
+solver_options_object = solver_options(...
+    'option1', value1, 'option2', value2, ...);
+
+%%
+% It is also possible to set your desired options after the instantiation
+% of your <matlab:doc('solver_options')
+% |solver_options|> object with the
+% <matlab:doc('solver_options.set_option') |set_option|>
+% method. 
+
+solver_options_object.set_option('option1', value1);
+solver_options_object.set_option('option2', value2);
+
+%%
+% The possible options for the experimental design are
+%
+% * |'parameter_estimation'|: whether a parameter estimation should be
+% performed befor the optimal design estimation or not (_possible values:_
+% |'yes'|, |'no'|, _default:_ |'no'|)
+%
+% * |'estimation_method'|: the method of the estimation of the quality of
+% the experimental design (_possible values:_ |'point'|, |'region'|,
+% _default:_ |'region'|)
+%
+% * |'alpha'|: the confidence level for the region estimation (_possible
+% value:_ a scalar with |0 < alpha < 1|, _default:_ |0.95|) 
+%
+% * |'debug'|: the level of debug information to be displayed (_possible
+% values:_ a non-negative integer, _default:_ |0| (no debug informations))
+%
+% * |'criterion'|: the criterion for the quality of an experimental design
+% (_possible values:_ an object of the <matlab:doc('criterion') |criterion|>
+% class, _default:_ a <matlab:doc('criterion_A') |criterion_A|> object)
+%
+% * |'scale_covariance_matrix'|:  whether the covariance matrix should
+% be scaled or not (_possible values:_ |'yes'|, |'no'|, _default:_ |'yes'|)
+%
+% * |'solver_edo_options'|: the solver to be used to solve the experimental
+% design optimization problem (_possible values:_ an object of the
+% <matlab:doc('solver_edo_options') |solver_edo_options|> class, _default:_ a
+% default <matlab:doc('solver_edo_options') |solver_edo_options|> object)
+
+%%
+% The options for the solver of the experimental design optimization
+% problem are stored in a <matlab:doc('solver_edo_options') |solver_edo_options|>
+% object. They can be set via the
+% <matlab:doc('solver_edo_options.solver_edo_options') |constructor|>.
+
+solver_edo_options_object = solver_edo_options('option1', value1, 'option2', value2, ...);
+    
+%%
+% You can change the options also after the instantiation with the
+% <matlab:doc('solver_options.set_option') |set_option|>
+% method. 
+
+solver_edo_options_object.set_option('option1', value1);
+solver_edo_options_object.set_option('option2', value2);
+
+%%
+% The possible options for the solver are
+%
+% * |'algorithm'|: the method to be used to solve the experimental design
+% optimization problem (_possible values_: |'direct'|, |'local_sqp'|,
+% _default_: |'local_sqp'|)
+% * |'max_fun_evals'|: the number of maximal model evaluations done by the
+% solver (_possible values_: a non-negative integer, _default_: |10^3|)
+% * |'max_iter'|: the number of maximal iterations of the solver (_possible
+% values_: a  non-negative integer, _default_: |5*10^1|) 
+
+##### SOURCE END #####
+--></body></html>

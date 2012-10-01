@@ -1,0 +1,98 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Function Reference</title><meta name="generator" content="MATLAB 7.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-10-01"><meta name="DC.source" content="Functions.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Function Reference</h1><!--introduction--><p>The classes of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are listed here.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Solver</a></li><li><a href="#2">Criteria</a></li><li><a href="#3">Models</a></li><li><a href="#4">Utilities</a></li><li><a href="#5">Application examples</a></li></ul></div><h2>Solver<a name="1"></a></h2><div><ul><li><a href="matlab:doc('solver')"><tt>solver</tt></a>           - allows to calculate and optimize the quality of measuring points of an experiment and allows to calculate a parameter estimation resulting from accomplished measurements.</li><li><a href="matlab:doc('solver_options')"><tt>solver_options</tt></a>   - represents the options for a solver object.</li><li><a href="matlab:doc('solver_edo_options')"><tt>solver_edo_options</tt></a>                - represents the options for the solver of the experimental design optimization problem.</li></ul></div><h2>Criteria<a name="2"></a></h2><div><ul><li><a href="matlab:doc('criterion')"><tt>criterion</tt></a>                     - represents an interface for a quality criterion.</li><li><a href="matlab:doc('criterion_A')"><tt>criterion_A</tt></a>                   - is the quality criterion that uses the average variance as the quality.</li></ul></div><h2>Models<a name="3"></a></h2><div><ul><li><a href="matlab:doc('optimal_experimental_design_toolbox.model')"><tt>model</tt></a>                         - represents an interface for a model.</li><li><a href="matlab:doc('model_explicit')"><tt>model_explicit</tt></a>                - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.</li><li><a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a>                     - implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.</li><li><a href="matlab:doc('model_fd')"><tt>model_fd</tt></a>              - implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.</li></ul></div><h2>Utilities<a name="4"></a></h2><div><ul><li><a href="matlab:doc('optimal_experimental_design_toolbox.util')"><tt>util</tt></a>                          - represents an utility class with static auxiliary methods for the toolbox.</li></ul></div><h2>Application examples<a name="5"></a></h2><div><ul><li><a href="matlab:doc('model_C2')"><tt>model_C2</tt></a>                      - models the concentration C of the suspended sediment above the marsh surface with two parameters.</li><li><a href="matlab:doc('model_C3')"><tt>model_C3</tt></a>                      - models the concentration C of the suspended sediment above the marsh surface with three parameters.</li><li><a href="matlab:doc('model_util')"><tt>model_util</tt></a>                      - represents an utility class with static auxiliary methods for working with model classes.</li></ul></div><p class="footer"><br>
+      Published with MATLAB&reg; 7.13<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Function Reference
+% The classes of the <matlab:doc('optimal_experimental_design_toolbox')
+% |Optimal Experimental Design Toolbox|> are listed here.
+
+%% Solver
+% * <matlab:doc('solver') |solver|>           - allows to calculate and optimize the quality of measuring points of an experiment and allows to calculate a parameter estimation resulting from accomplished measurements.
+% * <matlab:doc('solver_options') |solver_options|>   - represents the options for a solver object.
+% * <matlab:doc('solver_edo_options') |solver_edo_options|>                - represents the options for the solver of the experimental design optimization problem.
+%
+
+%% Criteria
+% * <matlab:doc('criterion') |criterion|>                     - represents an interface for a quality criterion.
+% * <matlab:doc('criterion_A') |criterion_A|>                   - is the quality criterion that uses the average variance as the quality.
+%
+
+%% Models
+% * <matlab:doc('optimal_experimental_design_toolbox.model') |model|>                         - represents an interface for a model.
+% * <matlab:doc('model_explicit') |model_explicit|>                - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.
+% * <matlab:doc('model_ivp') |model_ivp|>                     - implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.
+% * <matlab:doc('model_fd') |model_fd|>              - implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
+
+%% Utilities
+% * <matlab:doc('optimal_experimental_design_toolbox.util') |util|>                          - represents an utility class with static auxiliary methods for the toolbox.
+%
+
+%% Application examples
+% * <matlab:doc('model_C2') |model_C2|>                      - models the concentration C of the suspended sediment above the marsh surface with two parameters.
+% * <matlab:doc('model_C3') |model_C3|>                      - models the concentration C of the suspended sediment above the marsh surface with three parameters.
+% * <matlab:doc('model_util') |model_util|>                      - represents an utility class with static auxiliary methods for working with model classes.
+##### SOURCE END #####
+--></body></html>

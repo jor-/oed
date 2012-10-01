@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding="utf-8"?>
+<toc version="2.0">
+<!-- First tocitem specifies top level in Help browser Contents pane -->
+<!-- This can be a roadmap page, as shown below, or a content page -->
+
+    <tocitem target="Toolbox.html">Optimale Experimental Design Toolbox
+
+		<!-- Nest tocitems to create hierarchical entries in  Contents-->
+        <!-- To include icons, use the following syntax for tocitems: -->
+        <!-- <tocitem target="foo.html" image="HelpIcon.NAME"> -->
+        <!-- Title-of-Section </tocitem> -->
+        <!-- where NAME is one of the following (use capital letters): -->
+        <!-- FUNCTION, USER_GUIDE, EXAMPLES, BLOCK, GETTING_STARTED, -->
+        <!-- DEMOS, RELEASE_NOTES --> 
+        <!-- Icon images used for these entries are also stored in -->
+        <!-- matlabroot/toolbox/matlab/icons -->
+        <!-- A Getting Started Guide usually comes first -->
+        <tocitem target="Getting_started.html" image="HelpIcon.GETTING_STARTED">
+            Getting Started
+            <tocitem target="Product_overview.html">Product Overview
+            </tocitem>
+        </tocitem>
+
+        <!-- User Guide comes next -->
+        <tocitem target="Users_guide.html" 
+            image="HelpIcon.USER_GUIDE">User's Guide
+            <tocitem target="Users_guide.html#1">Providing the model</tocitem>
+			<tocitem target="Users_guide.html#5">An experimental_design object</tocitem>
+			<tocitem target="Users_guide.html#10">Optimizing measuring points</tocitem>
+			<tocitem target="Users_guide.html#12">Estimating model parameters</tocitem>
+			<tocitem target="Users_guide.html#13">Changing the options</tocitem>
+        </tocitem>
+
+		<!-- Function reference next -->
+        <!-- The first file lists all of the functions, categorizing them -->
+        <tocitem target="Functions.html" 
+                 image="HelpIcon.FUNCTION">Functions
+			<tocitem target="Functions.html#1">Experimental design</tocitem>
+			<tocitem target="Functions.html#2">Criteria</tocitem>
+			<tocitem target="Functions.html#3">Models</tocitem>
+			<tocitem target="Functions.html#4">Utilities</tocitem>
+        </tocitem>
+
+		<!-- Optional List of Examples, with hyperlinks to examples in other files -->
+        <tocitem target="Demos.html" 
+                 image="HelpIcon.DEMOS">Demos
+            <tocitem target="Demos.html#1">Create experimental design object</tocitem>
+			<tocitem target="Demos.html#2">Calculate optimale measuring points</tocitem>
+			<tocitem target="Demos.html#3">Calulate quality of measuring points</tocitem>
+			<tocitem target="Demos.html#4">Estimate model parameter</tocitem>
+			<tocitem target="Demos.html#5">Calculate gain of additional measurments</tocitem>
+			<tocitem target="Demos.html#6">Constraints</tocitem>
+        </tocitem>
+
+        <!-- Optional link or links to your or other Web sites -->
+        <tocitem target="https://github.com/jor-/oed" 
+                 image="$toolbox/matlab/icons/webicon.gif">Website
+        </tocitem>
+    </tocitem>
+</toc>
