@@ -2,31 +2,33 @@ classdef solver < handle
 % SOLVER allows to calculate and optimize the quality of experimental designs and allows to calculate a parameter estimation resulting from accomplished measurements.
 %
 % SOLVER Methods:
-%   GET_OPTIMIZED_WEIGHTINGS - returns the optimal weightings of the
-%       measuring points.
-%   GET_QUALITY - returns the quality resulting from the passed weightings
-%       of the measuring points.
-%   GET_OPTIMIZED_PARAMETERS - returns a parameter estimation resulting 
+%   GET_OPTIMAL_PARAMETERS - returns a parameter estimation resulting 
 %       from the weighted least square method applied to the accomplished
 %       measurements.
+%   GET_OPTIMAL_MEASUREMENTS - returns the optimal subset of measurements
+%       of the possible measurements.
+%   GET_OPTIMAL_WEIGHTINGS - returns the optimal weightings of the
+%       measurements.
+%   GET_QUALITY - returns the quality resulting from the passed weightings
+%       of the measurements.
 %   SET_MODEL - sets the model which will be used for the computations. 
 %   SET_INITIAL_PARAMETER_ESTIMATION - sets the initial estimation of the
 %       model parameter. 
-%   SET_POSSIBLE_MEASUREMENTS - sets the possible measuring points and the
+%   SET_POSSIBLE_MEASUREMENTS - sets the possible measurements and the
 %       associated variances.
 %   SET_ACCOMPLISHED_MEASUREMENTS - sets the accomplished measurements
-%       including the measuring points and the associated variances. 
+%       including the measurements and the associated variances. 
 %   SET_OPTIONS - sets the options for this SOLVER object.
 %
 %
-%   To calculate the optimal measuring points use the GET_OPTIMIZED_WEIGHTINGS 
+%   To calculate the optimal measurements use the GET_OPTIMAL_WEIGHTINGS 
 %   method. Use the GET_QUALITY method to calculate the quality of a set of
-%   measuring points. You can calculate an parameter estimation from the 
-%   accomplished measurements with the GET_OPTIMIZED_PARAMETERS method.
+%   measurements. You can calculate an parameter estimation from the 
+%   accomplished measurements with the GET_OPTIMAL_PARAMETERS method.
 %   
 %   You have to provide a model that describes the observed process and an
 %   estimation of the parameters of the model. Further you have to provide
-%   possible measuring points with the associated variance of the
+%   possible measurements with the associated variance of the
 %   measurement error and if available accomplished measurements. You can
 %   provide these things via the corresponding SET methods.
 
@@ -97,7 +99,7 @@ classdef solver < handle
         event_p0_changed;           %is triggered when the initial parameter estimation P0 was changed
         event_p_changed;            %is triggered when the parameter estimation P was changed
         
-        event_t_changed;            %is triggered when the measuring points T were changed
+        event_t_changed;            %is triggered when the measurements T were changed
         event_v_changed;            %is triggered when the variances V were changed
         event_eta_changed;          %is triggered when the measuring results were changed
         event_w_changed;            %is triggered when the weightings W were changed
@@ -124,17 +126,17 @@ classdef solver < handle
         %            (optional, can later be set by SET_MODEL)
         %     p0: the inital estimation of the model parameters
         %         (optional, can later be set by SET_INITIAL_PARAMETER_ESTIMATION)
-        %     T_VAR: the measuring points for which the quality will be
+        %     T_VAR: the measurements for which the quality will be
         %            calculated or optimized
         %            (optional, can later be set by SET_ACCOMPLISHED_MEASUREMENTS)
         %            format: a n x m matrix where n the dimension of a
-        %                    measuring point and m is the number of
-        %                    measuring points
+        %                    measurement and m is the number of
+        %                    measurements
         %     V_VAR: the variances of the measuring errors associated with 
-        %            these measuring points
+        %            these measurements
         %            (optional, can later be set by SET_ACCOMPLISHED_MEASUREMENTS)
         %            format: a vector of length m where m is the number of 
-        %                    measuring points
+        %                    measurements
         %
         % Output:
         %     OBJ: a SOLVER object with the passed configurations
@@ -214,21 +216,149 @@ classdef solver < handle
             end
             
         end
+                
         
-        
-        % ******************* GET_QUALITY ******************* %
-        function quality = get_quality(this, w_var)
-        % GET_QUALITY returns the quality resulting from the passed weightings of the measuring points.
-        % The smaller the value, the better the quality.
+        % ******************* GET_OPTIMAL_PARAMETERS ******************* %
+        function p = get_optimal_parameters(this, lb, ub)
+        % GET_OPTIMAL_PARAMETERS returns a parameter estimation resulting from the weighted least square method applied to the accomplished measurements.
         %
         % Example:
-        %     QUALITY = SOLVER_OBJECT.GET_QUALITY(W_VAR)
+        %     P = SOLVER_OBJECT.GET_OPTIMAL_PARAMETERS(LB, UB)
         %
         % Input:
-        %     W_VAR: the weightings of the measuring points
+        %     LB: the lower bound of the model parameters (optional, 
+        %         default: - Inf)
+        %     UB: the upper bound of the model parameters (optional,
+        %         default: + Inf)
         %
         % Output:
-        %     QUALITY: the quality resulting of the weightings W_VAR of the measuring points
+        %     P: returns a parameter estimation resulting from the weighted
+        %        least square method applied to the accomplished measurements,
+        %        so that the solution is in the range LB <= P <= UB
+        %
+        % Throws:
+        %     an error if the number of accomplished measurements is less
+        %     than the dimension of the model parameters.
+        %
+        % The model, an initial estimation of the parameter and the
+        % accomplished measurements must have been set via the associated
+        % SET methods. 
+        %
+        % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION and SET_ACCOMPLISHED_MEASUREMENTS
+        %
+            if nargin <= 1 || isempty(lb)
+                lb = -Inf;
+            end
+            
+            if nargin <= 2 || isempty(ub)
+                ub = Inf;
+            end
+            
+            if not(isequal(this.p_lb, lb)) || not(isequal(this.p_ub, ub)) || isempty(this.p)
+                this.p_lb = lb;
+                this.p_ub = ub;
+                
+                p0 = this.get_p0();
+                eta = this.get_eta();
+                
+                if length(eta) < length(p0);
+                    error(this.get_message_identifier('get_optimal_parameters', 'not_enough_accomplished_measurements'), ['The number of accomplished measurements is not enough. You need at least ', length(p0), ' accomplished measurements, but you have only ', length(eta), '.']);
+                end
+                    
+                model = this.get_model();
+                t = this.get_t_fix();
+                v = this.get_v_fix();
+
+                n = length(t);
+
+                v_average = sum(v) / n;
+                
+                tol_x = 10^-6;
+                tol_x_min = min(abs(p0));
+                tol_x_min = 10^(floor(log10(tol_x_min)) - 4);
+                tol_x_min = max([tol_x_min; eps]);
+                if tol_x_min < tol_x
+                    tol_x = tol_x_min;
+                end
+
+                
+                opt = optimset('Display', 'off', 'Jacobian','on', 'TolX', tol_x, 'MaxFunEvals', length(p0) * 10^3, 'MaxIter', length(p0) * 10^3);
+                %{
+                if lb == -Inf && ub == Inf
+                    opt.Algorithm = 'levenberg-marquardt';
+                    opt.ScaleProblem = 'Jacobian';
+                end
+                %}
+                if this.use_debug()
+                    opt.Display = 'iter-detailed';
+                    opt.Diagnostics = 'on';
+                end
+                
+                if this.use_debug(2)
+                    opt.DerivativeCheck = 'on';
+                end
+                
+                notify(this, 'event_t_changed'); % workaround for using get_dp_Mt in fun
+                p = lsqnonlin(@fun, p0, lb, ub, opt);
+                notify(this, 'event_t_changed'); % workaround for using get_dp_Mt in fun
+                
+                if not(isequal(this.p, p))
+                    this.p = p;
+                    if this.options.use_parameter_estimation()
+                        notify(this, 'event_p_changed');
+                    end
+                end                    
+            else
+                p = this.p;
+            end            
+            
+            function [F, J] = fun(p)
+                F =  (v_average * v.^(-1)) .* (this.get_Mt(model, p, t) - eta);
+                
+                if nargout > 1 
+                    J = diag(v_average * v.^(-1)) * this.get_dp_Mt(model, p, t);
+                end
+            end
+        end
+        
+        % ******************* GET_OPTIMAL_MEASUREMENTS ******************* %
+        function [t_opt, w_int, w_real] = get_optimal_measurements(this, A_ineq, b_ineq)
+        % GET_OPTIMAL_MEASUREMENTS returns the optimal subset of measurements of the possible measurements.
+        %
+        % Example:
+        %     T_OPT = SOLVER_OBJECT.GET_OPTIMAL_MEASUREMENTS(MAX)
+        %
+        % Input:
+        %     MAX: maximum number of measurements allowed
+        %
+        % Output:
+        %     T_OPT: the optimal subset of measurements of the possible
+        %            measurements with less than or equal MAX measurements
+        %     W_INT: the optimal integer weighting of the possible
+        %            measurements which follow the constraint sum(W) <= MAX,
+        %            if the direct solver is chosen or an approximation otherwise.
+        %     W_REAL: the optimal real weighting of the possible 
+        %             measurements which follow the constraint sum(W) <= MAX,
+        %             if the direct solver is chosen or [] otherwise.
+        %
+        %
+        % Example:
+        %     T_OPT = SOLVER_OBJECT.GET_OPTIMAL_MEASUREMENTS(A, B)
+        %
+        % Input:
+        %     A: matrix belonging to the constraint A*W <= B
+        %     B: vector belonging to the constraint A*W <= B
+        %
+        % Output:
+        %     T_OPT: the optimal subset of measurements of the possible
+        %            measurements whose optimal real weighting follow
+        %            the constraint A*W <= B 
+        %     W_INT: the optimal integer weighting of the possible 
+        %            measurements which follow (approximately) the constraint A*W <= B,
+        %            if the direct solver is chosen or an approximation otherwise.
+        %     W_REAL: the optimal real weighting of the possible 
+        %             measurements which follow the constraint A*W <= B,
+        %             if the direct solver is chosen or [] otherwise.
         %
         % The model, an initial estimation of the parameter and the
         % possible measurements must have been set via the associated
@@ -236,62 +366,53 @@ classdef solver < handle
         %
         % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION, SET_POSSIBLE_MEASUREMENTS and SET_ACCOMPLISHED_MEASUREMENTS
         %
-        
-            this.set_w_var(w_var);
-            w_var = this.get_w_var();
-            
-            model = this.get_model();
-            p = this.get_p();
-            t = this.get_t();
-            v = this.get_v();
-            S = this.get_S();
-            criterion = this.get_criterion();
-            if this.use_estimation_method_region()
-                g = this.get_g();
-            else
-                g = [];
+            switch nargin
+                case 1
+                    [w_int, w_real] = this.get_optimal_weightings();
+                case 2
+                    [w_int, w_real] = this.get_optimal_weightings(A_ineq);
+                case 3
+                    [w_int, w_real] = this.get_optimal_weightings(A_ineq, b_ineq);
+                otherwise
+                    error(this.get_message_identifier('get_optimal_measurements', 'Too_many_input_arguments'), ['The number of input arguments exceeds 2.']);
             end
             
-            quality = this.get_phiR(model, p, t, v, w_var, S, criterion, g);
-            
-            if ~isreal(quality)
-                quality = NaN;
-            end
+            t_var = this.get_t_var();
+            t_opt = t_var(w_int);
         end
+                
         
-        
-        % ******************* GET_OPTIMIZED_WEIGHTINGS ******************* %
-        function [w_int, w_real] = get_optimized_weightings(this, A_ineq, b_ineq)
-        % GET_OPTIMIZED_WEIGHTINGS returns the optimal weightings of the measuring points.
+        % ******************* GET_OPTIMAL_WEIGHTINGS ******************* %
+        function [w_int, w_real] = get_optimal_weightings(this, A_ineq, b_ineq)
+        % GET_OPTIMAL_WEIGHTINGS returns the optimal weightings of the possible measurements.
         %
         % Example:
-        %     [W_INT, W_REAL] = SOLVER_OBJECT.GET_OPTIMIZED_WEIGHTINGS(MAX)
+        %     [W_INT, W_REAL] = SOLVER_OBJECT.GET_OPTIMAL_WEIGHTINGS(MAX)
         %
         % Input:
-        %     MAX: maximum number of measuring points allowed (optional,
-        %          default: number of variable measuring points)
+        %     MAX: maximum number of measurements allowed
         %
         % Output:
-        %     W_INT: the optimal integer weighting of the variable measuring points
+        %     W_INT: the optimal integer weighting of the possible measurements
         %            which follow the constraint sum(W) <= MAX,
         %            if the direct solver is chosen or an approximation otherwise.
-        %     W_REAL: the optimal real weighting of the variable measuring points
+        %     W_REAL: the optimal real weighting of the possible measurements
         %             which follow the constraint sum(W) <= MAX,
         %             if the direct solver is chosen or [] otherwise.
         %
         %
         % Example:
-        %     [W_INT, W_REAL] = SOLVER_OBJECT.GET_OPTIMIZED_WEIGHTINGS(A, B)
+        %     [W_INT, W_REAL] = SOLVER_OBJECT.GET_OPTIMAL_WEIGHTINGS(A, B)
         %
         % Input:
-        %     A: matrix belonging to the constraint A*W <= B (optional)
-        %     B: vector belonging to the constraint A*W <= B (optional)
+        %     A: matrix belonging to the constraint A*W <= B
+        %     B: vector belonging to the constraint A*W <= B
         %
         % Output:
-        %     W_INT: the optimal integer weighting of the variable measuring points
+        %     W_INT: the optimal integer weighting of the possible measurements
         %            which follow (approximately) the constraint A*W <= B,
         %            if the direct solver is chosen or an approximation otherwise.
-        %     W_REAL: the optimal real weighting of the variable measuring points
+        %     W_REAL: the optimal real weighting of the possible measurements
         %             which follow the constraint A*W <= B,
         %             if the direct solver is chosen or [] otherwise.
         %
@@ -312,10 +433,10 @@ classdef solver < handle
                     max = dim_var;
                 end
                 if ~isscalar(max)
-                    error(this.get_message_identifier('get_optimized_weightings', 'max_is_no_scalar'), 'The input parameter "max" is not an scalar.');
+                    error(this.get_message_identifier('get_optimal_weightings', 'max_is_no_scalar'), 'The input parameter "max" is not an scalar.');
                 end
                 if max > dim_var
-                    warning(this.get_message_identifier('get_optimized_weightings', 'wrong_max_passed'), ['max can not exceed the number of weightings. max has been set to ' num2str(dim_var)']);
+                    warning(this.get_message_identifier('get_optimal_weightings', 'wrong_max_passed'), ['max can not exceed the number of weightings. max has been set to ' num2str(dim_var)']);
                     max = dim_var;
                 end
                 
@@ -333,7 +454,7 @@ classdef solver < handle
                 b_eq = [];
                 w0 = ones(dim_var, 1);
             else
-                error(this.get_message_identifier('get_optimized_weightings', 'wrong_number_of_input_parameters'), 'You have passed the wrong number of input parameters to this method.');
+                error(this.get_message_identifier('get_optimal_weightings', 'wrong_number_of_input_parameters'), 'You have passed the wrong number of input parameters to this method.');
             end
                 
             solver_edo_options = this.options.get_solver_edo_options();
@@ -395,7 +516,7 @@ classdef solver < handle
                                     fw_opt = fw;
                                 end
                             catch exception
-                                warning(this.get_message_identifier('get_optimized_weightings', 'model_error'), ['The following error occurred at w = ', num2str(w), ': ']);
+                                warning(this.get_message_identifier('get_optimal_weightings', 'model_error'), ['The following error occurred at w = ', num2str(w), ': ']);
                                 display(getReport(exception, 'extended'));
                             end
                         end
@@ -405,7 +526,7 @@ classdef solver < handle
                     w_real = [];
                     
                 otherwise
-                    error(this.get_message_identifier('get_optimized_weightings', 'solver_unsupported'), ['The solver ' solver_edo_options.get_solver_algorithm() ' is not supported.'])
+                    error(this.get_message_identifier('get_optimal_weightings', 'solver_unsupported'), ['The solver ' solver_edo_options.get_solver_algorithm() ' is not supported.'])
                     
             end
             
@@ -441,111 +562,51 @@ classdef solver < handle
                 
             end
             
-        end 
+        end
         
-        % ******************* GET_OPTIMIZED_PARAMETERS ******************* %
-        function p = get_optimized_parameters(this, lb, ub)
-        % GET_OPTIMIZED_PARAMETERS returns a parameter estimation resulting from the weighted least square method applied to the accomplished measurements.
+        % ******************* GET_QUALITY ******************* %
+        function quality = get_quality(this, w_var)
+        % GET_QUALITY returns the quality resulting from the passed weightings of the measurements.
+        % The smaller the value, the better the quality.
         %
         % Example:
-        %     P = SOLVER_OBJECT.GET_OPTIMIZED_PARAMETERS(LB, UB)
+        %     QUALITY = SOLVER_OBJECT.GET_QUALITY(W_VAR)
         %
         % Input:
-        %     LB: the lower bound of the model parameters (optional, 
-        %         default: - Inf)
-        %     UB: the upper bound of the model parameters (optional,
-        %         default: + Inf)
+        %     W_VAR: the weightings of the measurements
         %
         % Output:
-        %     P: returns a parameter estimation resulting from the weighted
-        %        least square method applied to the accomplished measurements,
-        %        so that the solution is in the range LB <= P <= UB
-        %
-        % Throws:
-        %     an error if the number of accomplished measurements is less
-        %     than the dimension of the model parameters.
+        %     QUALITY: the quality resulting of the weightings W_VAR of the measurements
         %
         % The model, an initial estimation of the parameter and the
-        % accomplished measurements must have been set via the associated
+        % possible measurements must have been set via the associated
         % SET methods. 
         %
-        % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION and SET_ACCOMPLISHED_MEASUREMENTS
+        % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION, SET_POSSIBLE_MEASUREMENTS and SET_ACCOMPLISHED_MEASUREMENTS
         %
-            if nargin <= 1 || isempty(lb)
-                lb = -Inf;
-            end
+        
+            this.set_w_var(w_var);
+            w_var = this.get_w_var();
             
-            if nargin <= 2 || isempty(ub)
-                ub = Inf;
-            end
-            
-            if not(isequal(this.p_lb, lb)) || not(isequal(this.p_ub, ub)) || isempty(this.p)
-                this.p_lb = lb;
-                this.p_ub = ub;
-                
-                p0 = this.get_p0();
-                eta = this.get_eta();
-                
-                if length(eta) < length(p0);
-                    error(this.get_message_identifier('get_optimized_parameters', 'not_enough_accomplished_measurements'), ['The number of accomplished measurements is not enough. You need at least ', length(p0), ' accomplished measurements, but you have only ', length(eta), '.']);
-                end
-                    
-                model = this.get_model();
-                t = this.get_t_fix();
-                v = this.get_v_fix();
-
-                n = length(t);
-
-                v_average = sum(v) / n;
-                
-                tol_x = 10^-6;
-                tol_x_min = min(abs(p0));
-                tol_x_min = 10^(floor(log10(tol_x_min)) - 4);
-                tol_x_min = max([tol_x_min; eps]);
-                if tol_x_min < tol_x
-                    tol_x = tol_x_min;
-                end
-
-                
-                opt = optimset('Display', 'off', 'Jacobian','on', 'TolX', tol_x, 'MaxFunEvals', length(p0) * 10^3, 'MaxIter', length(p0) * 10^3);
-                %{
-                if lb == -Inf && ub == Inf
-                    opt.Algorithm = 'levenberg-marquardt';
-                    opt.ScaleProblem = 'Jacobian';
-                end
-                %}
-                if this.use_debug()
-                    opt.Display = 'iter-detailed';
-                    opt.Diagnostics = 'on';
-                end
-                
-                if this.use_debug(2)
-                    opt.DerivativeCheck = 'on';
-                end
-                
-                notify(this, 'event_t_changed'); % workaround for using get_dp_Mt in fun
-                p = lsqnonlin(@fun, p0, lb, ub, opt);
-                notify(this, 'event_t_changed'); % workaround for using get_dp_Mt in fun
-                
-                if not(isequal(this.p, p))
-                    this.p = p;
-                    if this.options.use_parameter_estimation()
-                        notify(this, 'event_p_changed');
-                    end
-                end                    
+            model = this.get_model();
+            p = this.get_p();
+            t = this.get_t();
+            v = this.get_v();
+            S = this.get_S();
+            criterion = this.get_criterion();
+            if this.use_estimation_method_region()
+                g = this.get_g();
             else
-                p = this.p;
-            end            
+                g = [];
+            end
             
-            function [F, J] = fun(p)
-                F =  (v_average * v.^(-1)) .* (this.get_Mt(model, p, t) - eta);
-                
-                if nargout > 1 
-                    J = diag(v_average * v.^(-1)) * this.get_dp_Mt(model, p, t);
-                end
+            quality = this.get_phiR(model, p, t, v, w_var, S, criterion, g);
+            
+            if ~isreal(quality)
+                quality = NaN;
             end
         end
-               
+        
         
         % ******************* THE SETTER FOR THE INPUTS ******************* %
         function set_model(this, model)
@@ -558,7 +619,7 @@ classdef solver < handle
         %     MODEL: the model represented as an object whose class
         %            implements the MODEL interface
         %
-        % see also MODEL, GET_OPTIMIZED_WEIGHTINGS, GET_QUALITY and GET_OPTIMIZED_PARAMETERS
+        % see also MODEL, GET_OPTIMAL_WEIGHTINGS, GET_QUALITY and GET_OPTIMAL_PARAMETERS
         %
         
             if not(isequal(this.model, model))
@@ -576,7 +637,7 @@ classdef solver < handle
         % Input:
         %     P0: the initial estimation of the model parameters
         %
-        % see also GET_OPTIMIZED_WEIGHTINGS, GET_QUALITY and GET_OPTIMIZED_PARAMETERS
+        % see also GET_OPTIMAL_WEIGHTINGS, GET_QUALITY and GET_OPTIMAL_PARAMETERS
         %
         
             p0 = util.make_column_vector(p0);            
@@ -587,25 +648,25 @@ classdef solver < handle
         end
         
         function set_possible_measurements(this, t_var, v_var)
-        % SET_POSSIBLE_MEASUREMENTS sets the possible measuring points and the associated variances of the measuring errors.
-        % These are the measuring points for which the quality will be
+        % SET_POSSIBLE_MEASUREMENTS sets the possible measurements and the associated variances of the measuring errors.
+        % These are the measurements for which the quality will be
         % calculated or optimized. 
         %
         % Example:
         %     SOLVER_OBJECT.SET_POSSIBLE_MEASUREMENTS(T_VAR, V_VAR)
         %
         % Input:
-        %     T_VAR: the measuring points for which the quality will be
+        %     T_VAR: the measurements for which the quality will be
         %            calculated or optimized
         %            format: a n x m matrix where n is the number of
-        %                    measuring points and m the dimension of a
-        %                    measuring point
+        %                    measurements and m the dimension of a
+        %                    measurement
         %     V_VAR: the variances of the measuring errors associated with 
-        %            these measuring points
+        %            these measurements
         %            format: a vector of length n where n is the number of 
-        %                    measuring points
+        %                    measurements
         %
-        % see also GET_OPTIMIZED_WEIGHTINGS, GET_QUALITY and GET_OPTIMIZED_PARAMETERS
+        % see also GET_OPTIMAL_WEIGHTINGS, GET_QUALITY and GET_OPTIMAL_PARAMETERS
         %    
         
             v_var = util.make_column_vector(v_var);
@@ -626,26 +687,26 @@ classdef solver < handle
         end
         
         function set_accomplished_measurements(this, t_fix, v_fix, eta)
-        % SET_ACCOMPLISHED_MEASUREMENTS sets the accomplished measurements including the measuring points and the associated variances of the measuring errors.
+        % SET_ACCOMPLISHED_MEASUREMENTS sets the accomplished measurements including the measurements and the associated variances of the measuring errors.
         %
         % Example:
         %     SOLVER_OBJECT.SET_ACCOMPLISHED_MEASUREMENTS(T_FIX, V_FIX, ETA)
         %
         % Input:
-        %     T_FIX: the measuring points of accomplished measurements
+        %     T_FIX: the measurements of accomplished measurements
         %            format: a n x m matrix where n is the number of
-        %                    measuring points and m the dimension of a
-        %                    measuring point
+        %                    measurements and m the dimension of a
+        %                    measurement
         %     V_FIX: the variances of the measuring errors associated with 
-        %            these measuring points
+        %            these measurements
         %            format: a vector of length n where n is the number of 
-        %                    measuring points
+        %                    measurements
         %     ETA: the associated measuring results (optional,
         %          only necessary for parameter estimation)
         %          format: a vector of length n where n is the number of 
-        %                  measuring points
+        %                  measurements
         %
-        % see also GET_OPTIMIZED_WEIGHTINGS, GET_QUALITY and GET_OPTIMIZED_PARAMETERS
+        % see also GET_OPTIMAL_WEIGHTINGS, GET_QUALITY and GET_OPTIMAL_PARAMETERS
         %
         
             v_fix = util.make_column_vector(v_fix);
@@ -724,11 +785,12 @@ classdef solver < handle
     
     
     methods (Access = protected)
+                
         
         % ******************* INTERNAL CALCULATION METHODS ******************* %
         
         function Mt = get_Mt(this, model, p, t)
-        % GET_MT returns the output of the MODEL with the parameters P at the measuring points T.
+        % GET_MT returns the output of the MODEL with the parameters P at the measurements T.
         %
         % Example:
         %     MT = SOLVER_OBJECT.GET_MT(MODEL, P, T)
@@ -736,12 +798,12 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points for which the output will be 
+        %     T: the measurements for which the output will be 
         %        calculated
         %
         % Output:
         %     MT: the output of the MODEL with the parameters P at the
-        %         measuring points T.
+        %         measurements T.
         %
         
             size_t = size(t);
@@ -754,7 +816,7 @@ classdef solver < handle
         end
                 
         function dp_Mt = get_dp_Mt(this, model, p, t)
-        % GET_DP_MT returns the first derivation of the MODEL with respect to the parameters P at the measuring points T.
+        % GET_DP_MT returns the first derivation of the MODEL with respect to the parameters P at the measurements T.
         %
         % Example:
         %     DP_MT = SOLVER_OBJECT.GET_DP_MT(MODEL, P, T)
@@ -762,12 +824,12 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points for which the derivations will be 
+        %     T: the measurements for which the derivations will be 
         %        calculated
         %
         % Output:
         %     DP_MT: the first derivation of the MODEL with respect to the 
-        %            parameters P at the measuring points T
+        %            parameters P at the measurements T
         %
         
             if isempty(this.dp_Mt)
@@ -787,7 +849,7 @@ classdef solver < handle
         end                        
                 
         function dpdp_Mt = get_dpdp_Mt(this, model, p, t)
-        % GET_DPDP_MT returns the second derivation of the MODEL with respect to the parameters P at the measuring points T.
+        % GET_DPDP_MT returns the second derivation of the MODEL with respect to the parameters P at the measurements T.
         %
         % Example:
         %     DPDP_MT = SOLVER_OBJECT.GET_DPDP_MT(MODEL, P, T)
@@ -795,12 +857,12 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points for which the derivations will be 
+        %     T: the measurements for which the derivations will be 
         %        calculated
         %
         % Output:
         %     DPDP_MT: the second derivation of the MODEL with respect to 
-        %              the parameters P at the measuring points T
+        %              the parameters P at the measurements T
         %
         
             if isempty(this.dpdp_Mt)
@@ -846,9 +908,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %
         % Output:
@@ -864,7 +926,7 @@ classdef solver < handle
                 VW = spdiags(w .* v.^(-1), 0, dim_w, dim_w);
                 C_inv = dp_Mt' * VW * dp_Mt;
 %                 if rank(C_inv) < length(C_inv)
-%                     error(this.get_message_identifier('get_C', 'singular'), 'The covariance matrix for this value cannot be computed. "The inverse is singular." Try another weighting of the measuring points or another parameter.');
+%                     error(this.get_message_identifier('get_C', 'singular'), 'The covariance matrix for this value cannot be computed. "The inverse is singular." Try another weighting of the measurements or another parameter.');
 %                 end
                 
                 C = S * inv(C_inv) * S;
@@ -883,9 +945,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %
         % Output:
@@ -922,9 +984,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %
         % Output:
@@ -959,9 +1021,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %
         % Output:
@@ -1000,9 +1062,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %
         % Output:
@@ -1044,9 +1106,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %     CRITERION: a class that implements the CRITERION interface
         %
@@ -1072,9 +1134,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %     CRITERION: a class that implements the CRITERION interface
         %
@@ -1108,9 +1170,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %     CRITERION: a class that implements the CRITERION interface
         %
@@ -1144,9 +1206,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %     CRITERION: a class that implements the CRITERION interface
         %
@@ -1189,9 +1251,9 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %
         % Output:
@@ -1216,13 +1278,13 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %     CRITERION: a class that implements the CRITERION interface
         %     g: the radius of the neighborhood of the parameters P for
-        %        which the weightings of the measuring points will be
+        %        which the weightings of the measurements will be
         %        optimized
         %
         % Output:
@@ -1256,13 +1318,13 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measuring points
-        %     V: the variances associated with these measuring points
-        %     W_VAR: the weightings for the variable measuring points
+        %     T: the measurements
+        %     V: the variances associated with these measurements
+        %     W_VAR: the weightings for the variable measurements
         %     S: the scaling matrix for the parameters
         %     CRITERION: a class that implements the CRITERION interface
         %     g: the radius of the neighborhood of the parameters P for
-        %        which the weightings of the measuring points will be
+        %        which the weightings of the measurements will be
         %        optimized
         %
         % Output:
@@ -1372,9 +1434,9 @@ end
         %
             if this.options.use_parameter_estimation()
                 try
-                    p = this.get_optimized_parameters();
+                    p = this.get_optimal_parameters();
                 catch e
-                    if strcmp(e.identifier, this.get_message_identifier('get_optimized_parameters', 'not_enough_accomplished_measurements'))
+                    if strcmp(e.identifier, this.get_message_identifier('get_optimal_parameters', 'not_enough_accomplished_measurements'))
                         p = this.get_p0();
                     else
                         rethrow(e);
@@ -1386,16 +1448,16 @@ end
         end    
         
         function t = get_t(this)
-        % GET_T returns the measuring points which should be used for the computations.
+        % GET_T returns the measurements which should be used for the computations.
         %
         % Example:
         %     T = SOLVER_OBJECT.GET_T()
         %
         % Output:
-        %     T: the measuring points
+        %     T: the measurements
         %
         % Throws:
-        %     an error if the variable measuring points are not set.
+        %     an error if the variable measurements are not set.
         %
         % see also SET_T_V_VAR
         %
@@ -1408,34 +1470,34 @@ end
         end
         
         function ti = get_ti(this, t, i)
-        % GET_TI returns the i-th measuring point of the passed measuring points.
+        % GET_TI returns the i-th measurement of the passed measurements.
         %
         % Example:
         %     TI = SOLVER_OBJECT.GET_TI(T)
         %
         % Input: 
-        %     T: the measuring points
-        %     I: the number of the desired measuring point
+        %     T: the measurements
+        %     I: the number of the desired measurement
         %
         % Output:
-        %     TI = the i-th measuring point
+        %     TI = the i-th measurement
         %
         
             ti = t(i, :);
         end      
         
         function t_fix = get_t_fix(this)
-        % GET_T_FIX returns the measurement points from the accomplished measurements.
+        % GET_T_FIX returns the measurements from the accomplished measurements.
         %
         % Example:
         %     T_FIX = SOLVER_OBJECT.GET_T_FIX()
         %
         % Output:
-        %     T_FIX: the measurement points from the accomplished
+        %     T_FIX: the measurements from the accomplished
         %            measurements
         %
         % Throws:
-        %     an error if the measurement points from the accomplished
+        %     an error if the measurements from the accomplished
         %     measurements are not set.
         %
         % see also SET_ACCOMPLISHED_MEASUREMENTS
@@ -1445,6 +1507,30 @@ end
                 error(this.get_message_identifier('get_t_fix', 'not_set'), 't_fix is not set.');
             else
                 t_fix = this.t_fix;
+            end
+        end
+        
+        function t_var = get_t_var(this)
+        % GET_T_VAR returns the measurements from the possible measurements.
+        %
+        % Example:
+        %     T_VAR = SOLVER_OBJECT.GET_T_VAR()
+        %
+        % Output:
+        %     T_VAR: the measurements from the possible
+        %            measurements
+        %
+        % Throws:
+        %     an error if the measurements from the possible
+        %     measurements are not set.
+        %
+        % see also SET_POSSIBLE_MEASUREMENTS
+        %
+        
+            if isempty(this.t_var)
+                error(this.get_message_identifier('get_t_var', 'not_set'), 't_var is not set.');
+            else
+                t_var = this.t_var;
             end
         end
         
@@ -1518,13 +1604,13 @@ end
         end
         
         function w_var = get_w_var(this)
-        % GET_W_VAR returns the weightings of the variable measuring points which should be used for the computations.
+        % GET_W_VAR returns the weightings of the variable measurements which should be used for the computations.
         %
         % Example:
         %     W_VAR = SOLVER_OBJECT.GET_W_VAR()
         %
         % Output:
-        %     W_VAR: the weightings of the variable measuring points
+        %     W_VAR: the weightings of the variable measurements
         %
         % Throws:
         %     an error if the variable weightings are not set.
@@ -1540,13 +1626,13 @@ end
         end
         
         function set_w_var(this, w_var)
-        % SET_W_VAR sets the weighting for the variable measuring points.
+        % SET_W_VAR sets the weighting for the variable measurements.
         %
         % Example:
         %     SOLVER_OBJECT.SET_W_VAR(W_VAR)
         %
         % Input:
-        %     W_VAR: the weighting for the variable measuring points
+        %     W_VAR: the weighting for the variable measurements
         %
         
             w_var = util.make_column_vector(w_var);
@@ -1554,7 +1640,7 @@ end
             w_var(w_var < 0 & w_var >= -eps) = 0;
             
             if any(w_var < 0)
-                error(this.get_message_identifier('set_w_var', 'not_set'), 'One of the weightings for the variable measuring points is negative.');
+                error(this.get_message_identifier('set_w_var', 'not_set'), 'One of the weightings for the variable measurements is negative.');
             end
             
             if not(isequal(this.w_var, w_var))
@@ -1618,14 +1704,14 @@ end
         
         
         function g = get_g(this)
-        % GET_G returns the radius of the neighborhood of the parameters P for which the weightings of the measuring points will be optimized.
+        % GET_G returns the radius of the neighborhood of the parameters P for which the weightings of the measurements will be optimized.
         %
         % Example:
         %     G = SOLVER_OBJECT.GET_G()
         %
         % Output:
         %     G: the radius of the neighborhood of the parameters P for
-        %        which the weightings of the measuring points will be
+        %        which the weightings of the measurements will be
         %        optimized
         %
         % Throws:
@@ -1639,7 +1725,7 @@ end
         end
         
         function criterion = get_criterion(this)
-        % GET_CRITERION returns the criterion which characterize the quality of the weightings of the measuring points.
+        % GET_CRITERION returns the criterion which characterize the quality of the weightings of the measurements.
         %
         % Example:
         %     CRITERION = SOLVER_OBJECT.GET_CRITERION()

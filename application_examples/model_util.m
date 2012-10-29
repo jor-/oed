@@ -3,7 +3,7 @@ classdef model_util
 %
 % MODEL_UTIL Methods:
 %   GET_FICTITIOUS_MEASUREMENT_RESULTS - returns fictitious measurement results according to the passed informations.
-%   GET_MODEL_OUTPUTS - returns model outputs for the passed measuring point and model parameters.
+%   GET_MODEL_OUTPUTS - returns model outputs for the passed measurement and model parameters.
 %	GET_RELATIVE_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the difference of the passed and true parameters divided by the true parameters.
 %   GET_FACTOR_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the logarithm of the passed parameters divided by the true parameters.
 %	GET_ERROR returns the error and the total error between the passed parameters and the true parameters.
@@ -45,21 +45,21 @@ classdef model_util
         %            implements the MODEL interface
         %     P: the model parameters according to which the measurement
         %        results are computed
-        %     T: the measuring points for which the measurement results are
+        %     T: the measurements for which the measurement results are
         %        computed
         %        format: a vector of length n where n is the number of 
-        %                measuring points
+        %                measurements
         %     VAR: the variances of the normal distributed measuring errors
-        %          associated with these measuring points
+        %          associated with these measurements
         %          format: a vector of length n where n is the number of 
-        %                  measuring points
+        %                  measurements
         %
         % Output:
-        %     ETA: the model output for the passed measurements points and
+        %     ETA: the model output for the passed measurement points and
         %          model parameter added to a measurment error according to
         %          the passed variances
         %          format: a vector of length n where n is the number of 
-        %                  measuring points
+        %                  measurements
         %
         % see also GET_MODEL_OUTPUTS
         %
@@ -75,7 +75,7 @@ classdef model_util
         end
         
         function out = get_model_outputs(model, p, t)
-        % GET_MODEL_OUTPUTS returns model outputs for the passed measuring point and model parameters.
+        % GET_MODEL_OUTPUTS returns model outputs for the passed measurement and model parameters.
         %
         % Example:
         %     OUT = MODEL_UTIL.GET_MODEL_OUTPUTS(MODEL, P, T)
@@ -85,16 +85,16 @@ classdef model_util
         %            implements the MODEL interface
         %     P: the model parameters according to which the model outputs
         %        are computed
-        %     T: the measuring points for which the model outputs are
+        %     T: the measurements for which the model outputs are
         %        computed
         %        format: a vector of length n where n is the number of 
-        %                measuring points
+        %                measurements
         %
         % Output:
-        %     OUT: the model output for the passed measurements points and
+        %     OUT: the model output for the passed measurement points and
         %          model parameter
         %          format: a vector of length n where n is the number of 
-        %                  measuring points
+        %                  measurements
         %
         % see also GET_FICTITIOUS_MEASUREMENT_RESULTS
         %

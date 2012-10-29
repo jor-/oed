@@ -53,7 +53,7 @@
         </tocitem>
 
         <!-- Optional link or links to your or other Web sites -->
-        <tocitem target="https://github.com/jor-/oed" 
+        <tocitem target="http://github.com/jor-/oed" 
                  image="$toolbox/matlab/icons/webicon.gif">Website
         </tocitem>
     </tocitem>

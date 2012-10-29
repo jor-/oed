@@ -43,7 +43,7 @@ classdef model < handle
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the result of the model function
@@ -57,7 +57,7 @@ classdef model < handle
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the first derivative of the model function with respect to the parameters P at point T
@@ -71,7 +71,7 @@ classdef model < handle
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the second derivative of the model function with respect to the parameters P at point T

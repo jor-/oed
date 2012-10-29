@@ -54,7 +54,7 @@ classdef model_explicit < model
         %     F: the explicit formula of the model function as string or 
         %        symbolic function. F may depend on P and T.
         %     P: the variables of the parameters P as string or symbolic vector
-        %     T: the variables of the measuring points T as string or symbolic vector
+        %     T: the variables of the measurement T as string or symbolic vector
         %
         % Output:
         %     OBJ: a MODEL_EXPLICIT object with the passed configurations
@@ -75,8 +75,8 @@ classdef model_explicit < model
         %     M = MODEL_EXPLICIT_OBJECT.GET_M(P, T)
         %
         % Input:
-        %     P: the parameters
-        %     T: the measuring point
+        %     P: the parameters value
+        %     T: the measurement value
         %
         % Output:
         %     M: the result of the model function
@@ -92,8 +92,8 @@ classdef model_explicit < model
         %     M = MODEL_EXPLICIT_OBJECT.GET_DP_M(P, T)
         %
         % Input:
-        %     P: the parameters
-        %     T: the measuring point
+        %     P: the parameters value
+        %     T: the measurement value
         %
         % Output:
         %     M: the first derivative of the model function with respect to the parameters P
@@ -109,8 +109,8 @@ classdef model_explicit < model
         %     M = MODEL_EXPLICIT_OBJECT.GET_DPDP_M(P, T)
         %
         % Input:
-        %     P: the parameters
-        %     T: the measuring point
+        %     P: the parameters value
+        %     T: the measurement value
         %
         % Output:
         %     M: the second derivative of the model function with respect to the parameters P
@@ -132,7 +132,7 @@ classdef model_explicit < model
         % Input:
         %     F_SYM: the symbolic formula
         %     P: the parameters value
-        %     T: the measuring point value
+        %     T: the measurement value
         %
         % Output:
         %     RESULT: the result of the substitution of P and T in F_SYM

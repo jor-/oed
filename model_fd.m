@@ -4,7 +4,7 @@ classdef model_fd < model
 % MODEL_FD Methods:
 %    GET_M - returns the result of the model function
 %    GET_DP_M - returns the first derivative of the model function 
-%               with respect to the parameter p at point t	
+%               with respect to the parameter p at  point t	
 %    GET_DPDP_M - returns the second derivative of the model function 
 %                 with respect to the parameter p at point t
 %
@@ -50,7 +50,7 @@ classdef model_fd < model
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the first derivative of the model function with respect to the parameters P
@@ -75,7 +75,7 @@ classdef model_fd < model
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the second derivative of the model function with respect to the parameters P

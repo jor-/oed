@@ -197,10 +197,10 @@ classdef model_C2 < model
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
-        %     M: the concentration C of the suspended sediment for the passed parameters P at the measuring point T
+        %     M: the concentration C of the suspended sediment for the passed parameters P at the measurement T
         %
         % E, A, B, X0, hHMW and hHW must be set before via the constructor,
         % or the corresponding SET methods.
@@ -230,11 +230,11 @@ classdef model_C2 < model
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the derivation of the concentration C of the suspended sediment with respect to the parameters
-        %        for the passed parameters P at the measuring point T
+        %        for the passed parameters P at the measurement T
         %
         % E, A, B, X0, hHMW and hHW must be set before via the constructor,
         % or the corresponding SET methods.
@@ -264,11 +264,11 @@ classdef model_C2 < model
         %
         % Input:
         %     P: the parameters
-        %     T: the measuring point
+        %     T: the measurement
         %
         % Output:
         %     M: the second derivation of the concentration C of the suspended sediment with respect to the parameters
-        %        for the passed parameters P at the measuring point T
+        %        for the passed parameters P at the measurement T
         %
         % E, A, B, X0, hHMW and hHW must be set before via the constructor,
         % or the corresponding SET methods.
@@ -754,13 +754,13 @@ classdef model_C2 < model
         end
         
         function set_t(this, t)
-        % SET_T sets the measuring point T.
+        % SET_T sets the measurement T.
         %
         % Example:
         %     MODEL_C2.SET_T(T)
         %
         % Input:
-        %     T: the measuring point T. The first component is the point in
+        %     T: the measurement T. The first component is the point in
         %        time. The optional second component is the certain
         %        high-water level hHW.
         %
