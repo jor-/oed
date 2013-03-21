@@ -2,18 +2,19 @@ classdef model_fd < model
 % MODEL_FD implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
 %
 % MODEL_FD Methods:
-%    GET_M - returns the result of the model function
-%    GET_DP_M - returns the first derivative of the model function 
-%               with respect to the parameter p at  point t	
-%    GET_DPDP_M - returns the second derivative of the model function 
-%                 with respect to the parameter p at point t
+%    GET_M - returns the result of the model function with parameter P and
+%            experimental design T
+%    GET_DP_M - returns the first derivative of the model function with
+%               parameter P and experimental design T
+%    GET_DPDP_M - returns the second derivative of the model function with
+%                 parameter P and experimental design T
 %
 % see also MODEL
 %
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -43,17 +44,17 @@ classdef model_fd < model
     methods (Access = public)
         
         function dp_M = get_dp_M(this, p, t)
-        % GET_DP_M returns the first derivative of the model function with respect to the parameters P approximated by finite differences.
+        % GET_DP_M returns the first derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_FD_OBJECT.GET_DP_M(P, T)
         %
         % Input:
-        %     P: the parameters
-        %     T: the measurement
+        %     P: the parameter values
+        %     T: the experimental design values
         %
         % Output:
-        %     M: the first derivative of the model function with respect to the parameters P
+        %     M: the first derivative of the model function with parameter P and experimental design T
         %
         
              if ~ isequal(this.p, p) || ~ isequal(this.t, t) || isempty(this.dp_M)
@@ -68,17 +69,17 @@ classdef model_fd < model
         end
         
         function dpdp_M = get_dpdp_M(this, p, t)
-		% GET_DP_M returns the second derivative of the model function with respect to the parameters P approximated by finite differences.
+		% GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_FD_OBJECT.GET_DPDP_M(P, T)
         %
         % Input:
-        %     P: the parameters
-        %     T: the measurement
+        %     P: the parameter values
+        %     T: the experimental design values
         %
         % Output:
-        %     M: the second derivative of the model function with respect to the parameters P
+        %     M: the second derivative of the model function with parameter P and experimental design T
         %
 		 
             if ~ isequal(this.p, p) || ~ isequal(this.t, t) || isempty(this.dpdp_M)

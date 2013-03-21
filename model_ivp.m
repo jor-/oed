@@ -2,12 +2,14 @@ classdef model_ivp < model
 % MODEL_IVP implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.
 %
 % MODEL_IVP Methods:
-%   GET_M - returns the solution of the initial value problem.
+%   GET_M - returns the solution of the initial value problem with
+%           parameter P.
 %   GET_DP_M - returns the first derivative with respect to the
-%              parameters of the solution of the initial value problem. 
+%              parameters of the solution of the initial value problem
+%              with parameter P. 
 %   GET_DPDP_M - returns the second derivative with respect to the
-%                parameters of the solution of the initial value
-%                problem.
+%                parameters of the solution of the initial value problem
+%                with parameter P.
 %   SET_DEBUG - enables or disables the debug output.
 %
 % see also MODEL
@@ -15,7 +17,7 @@ classdef model_ivp < model
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -41,55 +43,55 @@ classdef model_ivp < model
         
         x_span;
         p;
-        t;
+        x;
         
         y_sym;
         f_sym;
         y0_sym;
         y;
-        yt;
+        yx;
         
         dp_y_sym;
         dp_f_sym;
         dp_y0_sym;    
         dp_y;
-        dp_yt;
+        dp_yx;
         
         dpdp_y_sym;
         dpdp_f_sym;
         dpdp_y0_sym;
         dpdp_y;
-        dpdp_yt;
+        dpdp_yx;
         
         debug;
     end
     
     events (ListenAccess = protected, NotifyAccess = protected)
         event_p_changed;    %is triggered when p was changed
-        event_t_changed;    %is triggered when t was changed
+        event_x_changed;    %is triggered when t was changed
     end
     
     methods (Access = public)
         
-        function this = model_ivp(x, y, p, f, x_span, y0)
+        function this = model_ivp(f, p, y, y0, x, x_span)
         % MODEL_IVP creates an MODEL_IVP object.
         %
         % Example:
-        %     OBJ = MODEL_IVP(X, Y, P, F, X_SPAN, Y0)
+        %     OBJ = MODEL_IVP(F, P, Y, Y0, X, X_SPAN)
         %
         % Input:
-        %     X: the dependent variable x as string or symbolic variable
-        %     Y: the independent variable y as string or symbolic variable
-        %     P: the variables of the parameters p as a cell array of
-        %        strings or as symbolic vector
-        %     F: the formula f for the derivative of y with respect to x as
+        %     F: the formula f of the derivative of y with respect to x as
         %        string or symbolic formula. f can depend on x, y and p.
         %        It holds (dy/dx)(x,p) = f(x,y,p). 
+        %     P: the variables of the parameters p as a cell array of
+        %        strings or as symbolic vector
+        %     Y: the independent variable y as string or symbolic variable
+        %     Y0: the value of y at x0 as string or symbolic variable.
+        %         Y0_SYM can depend on the parameters p. It holds y(x0,p) = y0(p).
+        %     X: the dependent variable x as string or symbolic variable
         %     X_SPAN: a vector specifying the interval of integration, X_SPAN = [x0, xf]. 
         %             The solver imposes the initial conditions at x0, and
         %             integrates from x0 to xf.
-        %     Y0: the value of y at x0 as string or symbolic variable.
-        %         Y0_SYM can depend on the parameters p. It holds y(x0,p) = y0(p).
         %
         % Output:
         %     OBJ: a MODEL_IVP object with the passed configurations
@@ -145,7 +147,7 @@ classdef model_ivp < model
             
             
             addlistener(this, 'event_p_changed', @(src, evnt_data) remove_calculations('p'));
-            addlistener(this, 'event_t_changed', @(src, evnt_data) remove_calculations('t'));
+            addlistener(this, 'event_x_changed', @(src, evnt_data) remove_calculations('t'));
             
             function remove_calculations(changed)
                 if strfind('p',  changed)
@@ -154,29 +156,29 @@ classdef model_ivp < model
                     this.dpdp_y = [];
                 end
                 if strfind('p t',  changed)
-                    this.yt = [];
-                    this.dp_yt = [];
-                    this.dpdp_yt = [];
+                    this.yx = [];
+                    this.dp_yx = [];
+                    this.dpdp_yx = [];
                 end
             end
         end
         
         
-        function M = get_M(this, p, t)
-        % GET_M returns the solution of the initial value problem.
+        function M = get_M(this, p, x)
+        % GET_M returns the solution of the initial value problem with parameter P.
         %
         % Example:
-        %     M = MODEL_IVP_OBJECT.GET_M(P, T)
+        %     M = MODEL_IVP_OBJECT.GET_M(P, X)
         %
         % Input:
         %     P: the parameters
-        %     T: the dependent variable (optional)
+        %     X: the dependent variable (optional)
         %
         % Output:
-        %     M: if T is passed: the solution of the initial value
+        %     M: if X is passed: the solution of the initial value
         %        problem for the passed parameters P and the passed
-        %        dependent variable T
-        %        if T is not passed: a handle to the solution function of
+        %        dependent variable X
+        %        if X is not passed: a handle to the solution function of
         %        the initial value problem for the passed parameters P
         %
         
@@ -184,7 +186,7 @@ classdef model_ivp < model
                 this.set_p(p);    
             end
             if nargin >= 3
-                this.set_t(t);
+                this.set_x(x);
             end
                         
             if isempty(this.y)
@@ -200,7 +202,7 @@ classdef model_ivp < model
                 x_span = this.get_x_span(); 
                 
                 f_tmp = simplify(subs(f_sym, p_sym, p));
-                f = @(t, y) (subs(subs(f_tmp, [x_sym, y_sym], [t, y])));
+                f = @(x, y) (subs(subs(f_tmp, [x_sym, y_sym], [x, y])));
                                
                 y0 = subs(y0_sym, p_sym, p);
                 
@@ -216,37 +218,37 @@ classdef model_ivp < model
                         
             
             if nargin >= 3
-                t = this.get_t();
+                x = this.get_x();
                 
-                if isempty(this.yt)
-                    yt = y(t);
-                    this.yt = yt;
+                if isempty(this.yx)
+                    yx = y(x);
+                    this.yx = yx;
                 else
-                    yt = this.yt;
+                    yx = this.yx;
                 end
-                M = yt;
+                M = yx;
             else
                 M = y;
             end
             
         end
         
-        function dp_M = get_dp_M(this, p, t)
+        function dp_M = get_dp_M(this, p, x)
         % GET_DP_M returns the first derivative with respect to the parameters P of the solution of the initial value problem.
         %
         % Example:
-        %     DP_M = MODEL_IVP_OBJECT.GET_DP_M(P, T)
+        %     DP_M = MODEL_IVP_OBJECT.GET_DP_M(P, X)
         %
         % Input:
         %     P: the parameters
-        %     T: the dependent variable (optional)
+        %     X: the dependent variable (optional)
         %
         % Output:
-        %     DP_M: if T is passed: the first derivative with respect to the
+        %     DP_M: if X is passed: the first derivative with respect to the
         %           parameters of the solution of the initial value
         %           problem for the passed parameters P and the passed
-        %           dependent variable T
-        %           if T is not passed: a handle to the first derivative with
+        %           dependent variable X
+        %           if X is not passed: a handle to the first derivative with
         %           respect to the parameters P of the solution function of
         %           the initial value problem for the passed parameters P
         %
@@ -255,7 +257,7 @@ classdef model_ivp < model
                 this.set_p(p);    
             end
             if nargin >= 3
-                this.set_t(t);
+                this.set_x(x);
             end
                        
             if isempty(this.dp_y)
@@ -281,7 +283,7 @@ classdef model_ivp < model
                 parfor i=1:n
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n)]);
                     
-                    dpi_f = @(t, dp_y) (subs(subs(dp_f_tmp(i), [x_sym, y_sym, dp_y_sym(i)], [t, y(t), dp_y])));
+                    dpi_f = @(x, dp_y) (subs(subs(dp_f_tmp(i), [x_sym, y_sym, dp_y_sym(i)], [x, y(x), dp_y])));
                     dp_y_cell{i} = this.solve_ODE(dpi_f, x_span, dp_y0(i));
                     
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n) ' END']);
@@ -296,11 +298,11 @@ classdef model_ivp < model
             end
             
             
-            function grad = eval_grad_cells(grad_cells, t)
+            function grad = eval_grad_cells(grad_cells, x)
                 m = length(grad_cells);
                 grad = zeros(m, 1);
                 for i=1:m
-                    grad(i) = grad_cells{i}(t);
+                    grad(i) = grad_cells{i}(x);
                 end
                 %{
                     n = length(t);
@@ -314,37 +316,37 @@ classdef model_ivp < model
             
             
             if nargin >= 3
-                t = this.get_t();
+                x = this.get_x();
                 
-                if isempty(this.dp_yt)
-                    dp_yt = dp_y(t);
-                    this.dp_yt = dp_yt;
+                if isempty(this.dp_yx)
+                    dp_yx = dp_y(x);
+                    this.dp_yx = dp_yx;
                 else
-                    dp_yt = this.dp_yt;
+                    dp_yx = this.dp_yx;
                 end
-                dp_M = dp_yt;
+                dp_M = dp_yx;
             else
                 dp_M = dp_y;
             end
             
         end
         
-        function dpdp_M = get_dpdp_M(this, p, t)
+        function dpdp_M = get_dpdp_M(this, p, x)
         % GET_DPDP_M returns the second derivative with respect to the parameters P of the solution of the initial value problem.
         %
         % Example:
-        %     DPDP_M = MODEL_IVP_OBJECT.GET_DPDP_M(P, T)
+        %     DPDP_M = MODEL_IVP_OBJECT.GET_DPDP_M(P, X)
         %
         % Input:
         %     P: the parameters
-        %     T: the dependent variable (optional)
+        %     X: the dependent variable (optional)
         %
         % Output:
-        %     DPDP_M: if T is passed: the second derivative with respect to
+        %     DPDP_M: if X is passed: the second derivative with respect to
         %             the parameters of the solution of the initial value
         %             problem for the passed parameters P and the passed
-        %             dependent variable T
-        %             if T is not passed: a handle to the second derivative
+        %             dependent variable X
+        %             if X is not passed: a handle to the second derivative
         %             with respect to the parameters P of the solution 
         %             function of the initial value problem for the passed
         %             parameters P
@@ -354,7 +356,7 @@ classdef model_ivp < model
                 this.set_p(p);    
             end
             if nargin >= 3
-                this.set_t(t);
+                this.set_x(x);
             end
             
             if isempty(this.dpdp_y)
@@ -394,13 +396,13 @@ classdef model_ivp < model
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l)]);  
                     
-                    dpidpj_f = @(t, dpdp_y) (subs(subs(dpdp_f_tmp(i, j), [x_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [t, y(t), dp_y(t).', dpdp_y])));
+                    dpidpj_f = @(x, dpdp_y) (subs(subs(dpdp_f_tmp(i, j), [x_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [x, y(x), dp_y(x).', dpdp_y])));
                     dpdp_y_cell{k} = this.solve_ODE(dpidpj_f, x_span, dpdp_y0(i, j));
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l) ' END']);                    
                 end
                 
-                dpdp_y = @(t) eval_hesse_cells(dpdp_y_cell, t);
+                dpdp_y = @(x) eval_hesse_cells(dpdp_y_cell, x);
                 this.dpdp_y = dpdp_y;
                 
                 this.show_debug('calculating dp_dp_y END');
@@ -414,29 +416,29 @@ classdef model_ivp < model
                 j = k - (i-1) * i / 2;
             end
             
-            function hesse = eval_hesse_cells(hesse_cells, t)
+            function hesse = eval_hesse_cells(hesse_cells, x)
                 l = length(hesse_cells);
                 n = index_1d_to_2d(l);
                 hesse = zeros(n, n);
 
                 for k=1:l
                     [i,j] = index_1d_to_2d(k);
-                    hesse(i,j) = hesse_cells{k}(t);
+                    hesse(i,j) = hesse_cells{k}(x);
                     hesse(j,i) = hesse(i,j);
                 end
             end
             
             
             if nargin >= 3
-                t = this.get_t();
+                x = this.get_x();
                 
-                if isempty(this.dpdp_yt)
-                    dpdp_yt = dpdp_y(t);
-                    this.dpdp_yt = dpdp_yt;
+                if isempty(this.dpdp_yx)
+                    dpdp_yx = dpdp_y(x);
+                    this.dpdp_yx = dpdp_yx;
                 else
-                    dpdp_yt = this.dpdp_yt;
+                    dpdp_yx = this.dpdp_yx;
                 end
-                dpdp_M = dpdp_yt;
+                dpdp_M = dpdp_yx;
             else
                 dpdp_M = dpdp_y;
             end
@@ -556,41 +558,41 @@ classdef model_ivp < model
             end 
         end
         
-        function set_t(this, t)
-        % SET_T sets the dependent variable T.
+        function set_x(this, t)
+        % SET_X sets the dependent variable X.
         %
         % Example:
-        %     MODEL_IVP.SET_T(T)
+        %     MODEL_IVP.SET_X(X)
         %
         % Input:
-        %     T: the dependent variable T
+        %     X: the dependent variable X
         %
-        % see also GET_T
+        % see also GET_X
         %
         
             t = util.make_column_vector(t);
-            if not(isequal(this.t, t))
-                this.t = t;
-                notify(this, 'event_t_changed');
+            if not(isequal(this.x, t))
+                this.x = t;
+                notify(this, 'event_x_changed');
             end            
         end
         
-        function t = get_t(this)
-        % GET_T returns the dependent variable T.
+        function t = get_x(this)
+        % GET_X returns the dependent variable X.
         %
         % Example:
-        %     T = MODEL_IVP.GET_T()
+        %     X = MODEL_IVP.GET_X()
         %
         % Output:
-        %     T: the dependent variable T
+        %     X: the dependent variable X
         %
-        % see also SET_T
+        % see also SET_X
         %
         
-            if isempty(this.t)
-                error(this.get_message_identifier('get_t', 't_not_set'), 't is not set.');
+            if isempty(this.x)
+                error(this.get_message_identifier('get_x', 'x_not_set'), 'x is not set.');
             else
-                t = this.t;
+                t = this.x;
             end 
         end
          

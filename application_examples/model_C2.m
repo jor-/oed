@@ -19,7 +19,7 @@ classdef model_C2 < model
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -568,7 +568,7 @@ classdef model_C2 < model
                 t_span = this.get_t_span();
                 y0_sym = this.get_C0_sym;
                 
-                ivp = model_ivp(t_sym, C_sym, p_sym, f_sym, t_span, y0_sym);
+                ivp = model_ivp(f_sym, p_sym, C_sym, y0_sym, t_sym, t_span);
                 ivp.set_debug(this.get_debug());
                 
                 this.ivp = ivp;

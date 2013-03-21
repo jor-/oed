@@ -2,18 +2,19 @@ classdef model_explicit < model
 % MODEL_EXPLICIT implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.
 %
 % MODEL_EXPLICIT Methods:
-%    GET_M - returns the result of the model function
-%    GET_DP_M - returns the first derivative of the model function 
-%               with respect to the parameter p at point t	
-%    GET_DPDP_M - returns the second derivative of the model function 
-%                 with respect to the parameter p at point t
+%    GET_M - returns the result of the model function with parameter P and
+%            experimental design T
+%    GET_DP_M - returns the first derivative of the model function with
+%               parameter P and experimental design T
+%    GET_DPDP_M - returns the second derivative of the model function with
+%                 parameter P and experimental design T
 %
 % see also MODEL
 %
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -54,7 +55,7 @@ classdef model_explicit < model
         %     F: the explicit formula of the model function as string or 
         %        symbolic function. F may depend on P and T.
         %     P: the variables of the parameters P as string or symbolic vector
-        %     T: the variables of the measurement T as string or symbolic vector
+        %     T: the variables of the experimental design T as string or symbolic vector
         %
         % Output:
         %     OBJ: a MODEL_EXPLICIT object with the passed configurations
@@ -69,51 +70,51 @@ classdef model_explicit < model
         end
         
         function M = get_M(this, p, t)        
-        % GET_M returns the result of the model function.
+        % GET_M returns the result of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_EXPLICIT_OBJECT.GET_M(P, T)
         %
         % Input:
-        %     P: the parameters value
-        %     T: the measurement value
+        %     P: the parameter values
+        %     T: the experimental design values
         %
         % Output:
-        %     M: the result of the model function
+        %     M: the result of the model function with parameter P and experimental design T
         %
         
             M = this.substitute(this.f_sym, p, t);
         end
         
         function dp_M = get_dp_M(this, p, t)
-        % GET_DP_M returns the first derivative of the model function with respect to the parameters P.
+        % GET_DP_M returns the first derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_EXPLICIT_OBJECT.GET_DP_M(P, T)
         %
         % Input:
-        %     P: the parameters value
-        %     T: the measurement value
+        %     P: the parameter values
+        %     T: the experimental design values
         %
         % Output:
-        %     M: the first derivative of the model function with respect to the parameters P
+        %     M: the first derivative of the model function with parameter P and experimental design T
         %
         
             dp_M = this.substitute(this.dp_f_sym, p, t);
         end
         
         function dpdp_M = get_dpdp_M(this, p, t)
-		% GET_DP_M returns the second derivative of the model function with respect to the parameters P.
+		% GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_EXPLICIT_OBJECT.GET_DPDP_M(P, T)
         %
         % Input:
-        %     P: the parameters value
-        %     T: the measurement value
+        %     P: the parameter values
+        %     T: the experimental design values
         %
         % Output:
-        %     M: the second derivative of the model function with respect to the parameters P
+        %     M: the second derivative of the model function with parameter P and experimental design T
         %
 		 
             dpdp_M = this.substitute(this.dpdp_f_sym, p, t);
@@ -132,7 +133,7 @@ classdef model_explicit < model
         % Input:
         %     F_SYM: the symbolic formula
         %     P: the parameters value
-        %     T: the measurement value
+        %     T: the experimental design values
         %
         % Output:
         %     RESULT: the result of the substitution of P and T in F_SYM
@@ -144,4 +145,3 @@ classdef model_explicit < model
     end
     
 end
-

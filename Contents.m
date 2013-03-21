@@ -1,10 +1,11 @@
 % Optimal Experimental Design Toolbox
-% Version 0.6.1 01-Oct-2012 
+% Version 0.6.2 21-Mar-2013 
 %
 % Solver.
 % solver               - allows to calculate and optimize the quality of experimental designs and allows to calculate a parameter estimation resulting from accomplished measurements.
 % solver_options       - represents the options for a solver object.
 % solver_edo_options   - represents the options for the solver of the experimental design optimization problem.
+% solver_po_options    - represents the options for the solver of the parameter optimization problem.
 %
 % Criteria.
 % criterion            - represents an interface for a quality criterion.
@@ -26,7 +27,7 @@
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 

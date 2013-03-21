@@ -7,15 +7,16 @@ classdef solver_options < handle
 %   GET_ALPHA - returns the confidence level for the region estimation.
 %   GET_CRITERION - returns the criterion for the quality of an experimental design.
 %   GET_ESTIMATION_METHOD - returns the method to use to estimate the quality of an experimental design.
-%   GET_SOLVER_EDO_OPTIONS - returns the options for the solver of the experimental design optimization problem.
 %   USE_DEBUG - returns whether debug informations will be output or not.
 %   USE_ESTIMATION_METHOD_REGION - returns whether to use the region method to estimate the quality of an experimental design or not.
 %   USE_PARAMETER_ESTIMATION - returns whether to perform a parameter estimation before the optimization of the experimental design or not.
 %   GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in methods of these object.
+%   GET_SOLVER_EDO_OPTIONS - returns the options for the solver of the experimental design optimization problem.
+%   GET_SOLVER_PO_OPTIONS - returns the options for the solver of the parameter optimization problem.
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -40,8 +41,9 @@ classdef solver_options < handle
         
         criterion_class_name = 'criterion';
         solver_edo_options_class_name = 'solver_edo_options';
+        solver_po_options_class_name = 'solver_po_options';
     end
-    
+        
     properties (Constant)
         debug_id = 'debug';
         alpha_id = 'alpha';
@@ -61,6 +63,7 @@ classdef solver_options < handle
         scale_covariance_matrix_no = 'no';
         
         solver_edo_options_id = 'solver_edo_options';
+        solver_po_options_id = 'solver_po_options';
     end
     
     methods (Access = public)
@@ -94,6 +97,10 @@ classdef solver_options < handle
         %         experimental design optimization problem (possible
         %         values: an object of the SOLVER_EDO_OPTIONS class,
         %         default: a default SOLVER_EDO_OPTIONS object)
+        %     'solver_po_options': the solver to be used to solve the
+        %         parameter optimization problem (possible
+        %         values: an object of the SOLVER_PO_OPTIONS class,
+        %         default: a default SOLVER_PO_OPTIONS object)
         %
         % Output:
         %     OBJ: a SOLVER_OPTIONS object with the passed configurations
@@ -110,9 +117,10 @@ classdef solver_options < handle
             this.set_option(this.alpha_id, 0.95);
             this.set_option(this.criterion_id, criterion_A());
             this.set_option(this.estimation_method_id, this.estimation_method_region);
-            this.set_option(this.solver_edo_options_id, solver_edo_options());
             this.set_option(this.parameter_estimation_id, this.parameter_estimation_no);
             this.set_option(this.scale_covariance_matrix_id, this.scale_covariance_matrix_yes);
+            this.set_option(this.solver_edo_options_id, solver_edo_options());
+            this.set_option(this.solver_po_options_id, solver_po_options());
             
             % insert passed options
             if mod(nargin, 2) == 0
@@ -124,8 +132,7 @@ classdef solver_options < handle
             end            
             
         end
-        
-        
+                
         
         function set_option(this, name, value)
         % SET_OPTION changes an option.
@@ -155,39 +162,64 @@ classdef solver_options < handle
                     if ~ isscalar(value)
                         error(this.get_message_identifier('set_option', 'no_scalar'), ['The value for "', name, '" has to be scalar.']);
                     end
+                    this.options.(name) = value;
                 case this.alpha_id
                     if ~ isscalar(value) || value <= 0 || value >= 1
                         error(this.get_message_identifier('set_option', 'not_between_0_and_1'), ['The value for "', name, '" has to be between 0 and 1.']);
                     end
+                    this.options.(name) = value;
                 case this.criterion_id
                     if ~ isa(value, this.criterion_class_name)
                         error(this.get_message_identifier('set_option', 'no_criterion_class'), ['The value for "', name, '" has to be a an object of the ', this.criterion_class_name, ' class.']);
                     end
+                    this.options.(name) = value;
                 case this.estimation_method_id
                     if ~ (isequal(value, this.estimation_method_point) || isequal(value, this.estimation_method_region))
                         error(this.get_message_identifier('set_option', 'unknown_estimation_method_option'), ['The value for "', name, '" has to be ', this.estimation_method_point, ' or ', this.estimation_method_region, '.']);
                     end
-                case this.solver_edo_options_id
-                    if ~ isa(value, this.solver_edo_options_class_name)
-                        error(this.get_message_identifier('set_option', 'no_solver_option_class'), ['The value for "', name, '" has to be a subclass of the ', this.solver_edo_options_class_name, ' class.']);
-                    end
+                    this.options.(name) = value;
                 case this.parameter_estimation_id
                     if ~ (isequal(value, this.parameter_estimation_yes) || isequal(value, this.parameter_estimation_no))
                         error(this.get_message_identifier('set_option', 'unknown_parameter_estimation_option'),  ['The value for "', name, '" has to be ', this.parameter_estimation_yes, ' or ', this.parameter_estimation_no, '.']);
                     end
+                    this.options.(name) = value;
                 case this.scale_covariance_matrix_id
                     if ~ (isequal(value, this.scale_covariance_matrix_yes) || isequal(value, this.scale_covariance_matrix_no))
                         error(this.get_message_identifier('set_option', 'unknown_scale_covariance_matrix_option'),  ['The value for "', name, '" has to be ', this.scale_covariance_matrix_yes, ' or ', this.scale_covariance_matrix_no, '.']);
                     end
+                    this.options.(name) = value;
+                case this.solver_edo_options_id
+                    if ~ isa(value, this.solver_edo_options_class_name)
+                        error(this.get_message_identifier('set_option', 'no_solver_edo_option_class'), ['The value for "', name, '" has to be a subclass of the ', this.solver_edo_options_class_name, ' class.']);
+                    end
+                    this.options.(name) = value;
+                case this.solver_po_options_id
+                    if ~ isa(value, this.solver_po_options_class_name)
+                        error(this.get_message_identifier('set_option', 'no_solver_po_option_class'), ['The value for "', name, '" has to be a subclass of the ', this.solver_po_options_class_name, ' class.']);
+                    end
+                    this.options.(name) = value;
                 otherwise
-                    error(this.get_message_identifier('set_option', 'unknown_option_name'), ['The option "', name, '" is not supported.']); 
-            end
-            
-            % update option
-            this.options.(name) = value;
-            
-        end
-        
+                    try
+                        solver_edo_options = this.get_solver_edo_options();
+                        solver_edo_options.set_option(name, value);
+                    catch exception
+                        if isequal(exception.identifier, solver_edo_options.error_id__set_option__unknown_option_name)
+                            try
+                                solver_po_options = this.get_solver_po_options();
+                                solver_po_options.set_option(name, value);
+                            catch exception
+                                if isequal(exception.identifier, solver_po_options.error_id__set_option__unknown_option_name)
+                                    error(this.get_message_identifier('set_option', 'unknown_option_name'), ['The option "', name, '" is not supported.']);
+                                else
+                                    rethrow(exception);
+                                end
+                            end
+                        else
+                            rethrow(exception);
+                        end
+                    end
+            end            
+        end        
         
         
         function option = get_option(this, name)
@@ -261,21 +293,6 @@ classdef solver_options < handle
            estimation_method =  this.get_option(this.estimation_method_id);
         end
         
-        function solver_edo_options = get_solver_edo_options(this)
-        % GET_SOLVER_EDO_OPTIONS returns the options for the solver of the experimental design optimization problem.
-        %
-        % Example:
-        %     SOLVER_OPTIONS_OBJECT.GET_SOLVER_EDO_OPTIONS()
-        %
-        % Output:
-        %     SOLVER_EDO_OPTIONS: the options for the solver of the experimental design optimization problem
-        %
-        % see also SOLVER_OPTIONS.SOLVER_OPTIONS
-        %
-        
-           solver_edo_options =  this.get_option(this.solver_edo_options_id);
-        end
-        
         function boolean = use_debug(this, debug)
         % USE_DEBUG returns whether debug informations will be output or not.
         %
@@ -344,6 +361,36 @@ classdef solver_options < handle
         %
         
             boolean = isequal(this.get_option(this.scale_covariance_matrix_id), this.scale_covariance_matrix_yes);
+        end
+        
+        function solver_edo_options = get_solver_edo_options(this)
+        % GET_SOLVER_EDO_OPTIONS returns the options for the solver of the experimental design optimization problem.
+        %
+        % Example:
+        %     SOLVER_OPTIONS_OBJECT.GET_SOLVER_EDO_OPTIONS()
+        %
+        % Output:
+        %     SOLVER_EDO_OPTIONS: the options for the solver of the experimental design optimization problem
+        %
+        % see also SOLVER_OPTIONS.SOLVER_OPTIONS
+        %
+        
+           solver_edo_options =  this.get_option(this.solver_edo_options_id);
+        end
+        
+        function solver_po_options = get_solver_po_options(this)
+        % GET_SOLVER_PO_OPTIONS returns the options for the solver of the parameter optimization problem.
+        %
+        % Example:
+        %     SOLVER_OPTIONS_OBJECT.GET_SOLVER_PO_OPTIONS()
+        %
+        % Output:
+        %     SOLVER_PO_OPTIONS: the options for the solver of the parameter optimization problem
+        %
+        % see also SOLVER_OPTIONS.SOLVER_OPTIONS
+        %
+        
+           solver_po_options =  this.get_option(this.solver_po_options_id);
         end
         
     end

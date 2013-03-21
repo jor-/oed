@@ -7,14 +7,14 @@ classdef solver_edo_options < handle
 %     GET_OPTION - returns the value of an option.
 %     GET_SOLVER_ALGORITHM - returns the algorithm to be used to solve the experimental design optimization problem.
 %     USE_ALGORITHM_LOCAL_SQP - returns whether to use the local SQP algorithm to solve the relaxed experimental design optimization problem or not.
-%     USE_ALGORITHM_DIRECT - returns whether to use the diret algorithm to solve the experimental design optimization problem or not.
+%     USE_ALGORITHM_DIRECT - returns whether to use the direct algorithm to solve the experimental design optimization problem or not.
 %     GET_MAX_FUN_EVALS - returns the maximal model evaluations done by the local SQP solver algorithm.
 %     GET_MAX_ITER - returns the maximal iterations done by the local SQP solver algorithm.
 %     GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in methods of these object.
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2012 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -39,14 +39,14 @@ classdef solver_edo_options < handle
     end
     
     properties (Constant)        
-        algorithm_id = 'algorithm';
+        algorithm_id = 'edo_algorithm';
         algorithm_direct = 'direct';
         algorithm_local_sqp = 'local_sqp';
-        %algorithm_global_sqp_serial = 'global_sqp_serial';
-        %algortihm_global_sqp_parallel = 'global_sqp_parallel';
         
-        max_fun_evals_id = 'max_fun_evals';
-        max_iter_id = 'max_iter';
+        max_fun_evals_id = 'edo_max_fun_evals';
+        max_iter_id = 'edo_max_iter';
+        
+        error_id__set_option__unknown_option_name = solver_edo_options.get_message_identifier('set_option', 'unknown_option_name');
     end
     
     methods (Access = public)
@@ -58,14 +58,14 @@ classdef solver_edo_options < handle
         %     OBJ = SOLVER_EDO_OPTIONS('OPTION1',VALUE1,'OPTION2',VALUE2,...)
         %
         % Input:
-        %     'algorithm': the method to be used to solve the experimental
+        %     'edo_algorithm': the method to be used to solve the experimental
         %         design optimization problem (possible values: 'direct', 
         %         'local_sqp', default: 'local_sqp')
-        %     'max_fun_evals': the number of maximal model evaluations done
+        %     'edo_max_fun_evals': the number of maximal model evaluations done
         %         by the 'local_sqp' solver (possible values: a non-negative integer,
         %         default: 10^3)
-        %     'max_iter': the number of maximal iterations of the 'local_sqp' solver
-        %         (possible values: a  non-negative integer, default: 5*10^1)
+        %     'edo_max_iter': the number of maximal iterations of the 'local_sqp' solver
+        %         (possible values: a  non-negative integer, default: 10^3)
         %
         % Output:
         %     OBJ: a SOLVER_EDO_OPTIONS object with the passed configurations
@@ -120,31 +120,24 @@ classdef solver_edo_options < handle
             % check option value
             switch name
                 case this.algorithm_id
-%                     if ~ (isequal(value, this.algorithm_local_sqp) || ...
-%                           isequal(value, this.algorithm_global_sqp_serial) || ...
-%                           isequal(value, this.algorithm_global_sqp_parallel) || ...
-%                           isequal(value, this.algorithm_direct))
-%                         error(this.get_message_identifier('set_option'), ['The value for "' name '" has to be ' this.algorithm_local_sqp ', ' this.algorithm_global_sqp_serial ', ' this.algorithm_global_sqp_parallel ' or ' this.algorithm_direct '.']);
-%                     end
                     if ~ (isequal(value, this.algorithm_local_sqp) || ...
                           isequal(value, this.algorithm_direct))
                         error(this.get_message_identifier('set_option', 'unknown_algorithm'), ['The value for "' name '" has to be ' this.algorithm_local_sqp, ' or ' this.algorithm_direct '.']);
                     end
                 case this.max_fun_evals_id
-                    if ~ isscalar(value)
-                        error(this.get_message_identifier('set_option', 'no_scalar'), ['The value for "', name, '" has to be scalar.']);
+                    if ~ (isscalar(value) && value == fix(value))
+                        error(this.get_message_identifier('set_option', 'no_scalar_integer'), ['The value for "', name, '" has to be scalar integer.']);
                     end
                 case this.max_iter_id
-                    if ~ isscalar(value)
-                        error(this.get_message_identifier('set_option', 'no_scalar'), ['The value for "', name, '" has to be scalar.']);
+                    if ~ (isscalar(value) && value == fix(value))
+                        error(this.get_message_identifier('set_option', 'no_scalar_integer'), ['The value for "', name, '" has to be scalar integer.']);
                     end
                 otherwise
-                    error(this.get_message_identifier('set_option', 'unknown_option_name'), ['The option "', name, '" is not supported.']); 
+                    error(this.error_id__set_option__unknown_option_name, ['The option "', name, '" is not supported.']); 
             end
             
             % update option
-            this.options.(name) = value;
-            
+            this.options.(name) = value;            
         end
         
         
@@ -209,7 +202,7 @@ classdef solver_edo_options < handle
         end
         
         function boolean = use_algorithm_direct(this)
-        % USE_ALGORITHM_DIRECT returns whether to use the diret algorithm to solve the experimental design optimization problem or not.
+        % USE_ALGORITHM_DIRECT returns whether to use the direct algorithm to solve the experimental design optimization problem or not.
         %
         % Example:
         %     SOLVER_EDO_OPTIONS_OBJECT.USE_ALGORITHM_DIRECT()
