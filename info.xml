@@ -26,7 +26,7 @@
     
     <!-- Supply the following six elements in the order specified -->
     <!-- (Required) element; matlabrelease content is not currently used -->
-    <matlabrelease>2011b</matlabrelease>
+    <matlabrelease>2012b</matlabrelease>
     <!-- (Required) The name element appears in the Contents pane -->
     <name>Optimal Experimental Design</name>
     <!-- (Required) The type elementidentifies your package; pick one: -->
@@ -64,7 +64,7 @@
         <listitem>
              <!-- Include call to open your Web site, if any -->
            <label>Product Page (Web)</label>
-            <callback>web http://github.com/jor-/oed -browser</callback>
+            <callback>web help/html/Website.html</callback>
             <icon>$docroot/techdoc/matlab_env/examples/webicon.gif</icon>
         </listitem>
         <!-- Add listitems for other features of your toolbox... -->

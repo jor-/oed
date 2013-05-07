@@ -10,6 +10,13 @@ classdef solver < handle
 %   GET_OPTIMAL_WEIGHTS - returns the optimal weights of the measurements.
 %   GET_QUALITY - returns the quality resulting from the passed weights
 %       of the measurements.
+%   GET_COVARIANCE_MATRIX - returns the covarinace matrix of the parameters
+%       resulting from the accomplished and the by the passed weights
+%       selected measurements.
+%   GET_CONFIDENCE_INTERVALS - returns the absolute values by which the
+%       optimal parameters resulting from the accomplished and the by the
+%       passed weights selected measurements maximally vary from the true
+%       parameters with the passed probability.
 %   SET_MODEL - sets the model which will be used for the computations. 
 %   SET_INITIAL_PARAMETER_ESTIMATION - sets the initial estimation of the
 %       model parameter. 
@@ -33,7 +40,7 @@ classdef solver < handle
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
+    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -405,7 +412,8 @@ classdef solver < handle
         %     [T_OPT, W_INT, W_REAL] = SOLVER_OBJECT.GET_OPTIMAL_MEASUREMENTS(MAX)
         %
         % Input:
-        %     MAX: the maximum number of measurements allowed
+        %     MAX: the maximum number of measurements allowed (optional, 
+        %          default: Inf)
         %
         % Output:
         %     T_OPT: the optimal subset of the selectable measurements with
@@ -454,8 +462,7 @@ classdef solver < handle
             
             t_var = this.get_t_var();
             t_opt = t_var(w_int);
-        end
-                
+        end                
         
         % ******************* GET_OPTIMAL_WEIGHTS ******************* %
         function [w_int, w_real] = get_optimal_weights(this, A_ineq, b_ineq)
@@ -465,7 +472,8 @@ classdef solver < handle
         %     [W_INT, W_REAL] = SOLVER_OBJECT.GET_OPTIMAL_WEIGHTS(MAX)
         %
         % Input:
-        %     MAX: maximum number of measurements allowed
+        %     MAX: maximum number of measurements allowed (optional, 
+        %         default: Inf)
         %
         % Output:
         %     W_INT: the optimal integer weights of the selectable measurements
@@ -643,19 +651,22 @@ classdef solver < handle
             
         end
         
+        
         % ******************* GET_QUALITY ******************* %
         function quality = get_quality(this, w_var)
-        % GET_QUALITY returns the quality resulting from the passed weights of the measurements.
+        % GET_QUALITY returns the quality resulting from the accomplished and the by the passed weights selected measurements.
         % The smaller the value, the better the quality.
         %
         % Example:
         %     QUALITY = SOLVER_OBJECT.GET_QUALITY(W_VAR)
         %
         % Input:
-        %     W_VAR: the weights of the measurements
+        %     W_VAR: the weights of the measurements (optional, 
+        %            default: zeroes)
         %
         % Output:
-        %     QUALITY: the quality resulting of the weights W_VAR of the measurements
+        %     QUALITY: the quality resulting from the accomplished and the
+        %              by the passed weights W_VAR selected measurements
         %
         % The model, an initial estimation of the parameter and the
         % selectable measurements must have been set via the associated
@@ -664,6 +675,11 @@ classdef solver < handle
         % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION, SET_SELECTABLE_MEASUREMENTS and SET_ACCOMPLISHED_MEASUREMENTS
         %
         
+            if nargin < 2
+                dim_var = length(this.t_var);
+                w_var = zeros(dim_var, 1);
+            end
+            
             this.set_w_var(w_var);
             w_var = this.get_w_var();
             
@@ -688,6 +704,87 @@ classdef solver < handle
             if ~isreal(quality)
                 quality = NaN;
             end
+        end
+        
+        % ******************* GET_COVARIANCE_MATRIX ******************* %
+        function C = get_covariance_matrix(this, w_var)
+        % GET_COVARIANCE_MATRIX returns the covarinace matrix of the parameters resulting from the accomplished and the by the passed weights selected measurements.
+        %
+        % Example:
+        %     C = SOLVER_OBJECT.GET_COVARIANCE_MATRIX(W_VAR)
+        %
+        % Input:
+        %     W_VAR: the weights of the measurements (optional, 
+        %            default: zeroes)
+        %
+        % Output:
+        %     C: the covarinace matrix of the parameters resulting from the
+        %        accomplished and the by the passed weights W_VAR selected
+        %        measurements
+        %
+        % The model, an initial estimation of the parameter and the
+        % selectable measurements must have been set via the associated
+        % SET methods. 
+        %
+        % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION, SET_SELECTABLE_MEASUREMENTS and SET_ACCOMPLISHED_MEASUREMENTS
+        %
+        
+            if nargin < 2
+                dim_var = length(this.t_var);
+                w_var = zeros(dim_var, 1);
+            end
+            
+            this.set_w_var(w_var);
+            w_var = this.get_w_var();
+            
+            model = this.get_model();
+            p = this.get_p();
+            t = this.get_t();
+            v = this.get_v();
+            S = eye(length(p));
+            
+            C = this.get_C(model, p, t, v, w_var, S);
+        end
+        
+        % ******************* GET_CONFIDENCE_INTERVALS ******************* %
+        function v = get_confidence_intervals(this, w_var, alpha)
+        % GET_CONFIDENCE_INTERVALS returns the absolute values by which the optimal parameters resulting from the accomplished and the by the passed weights selected measurements maximally vary from the true parameters with the passed probability.
+        %
+        % Example:
+        %     V = SOLVER_OBJECT.GET_CONFIDENCE_INTERVALS(W_VAR, ALPHA)
+        %
+        % Input:
+        %     W_VAR: the weights of the measurements (optional, 
+        %            default: zeroes)
+        %     ALPHA: the probability that the returned values ​​should be
+        %            accurate (optional, default: the value which is set in 
+        %            the options of the solver object)
+        %
+        % Output:
+        %     V: the absolute values by which the optimal parameters
+        %        resulting from the accomplished and the by the passed
+        %        weights selected measurements maximally vary from the true
+        %        parameters with the passed probability.
+        %
+        % The model, an initial estimation of the parameter and the
+        % selectable measurements must have been set via the associated
+        % SET methods. 
+        %
+        % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION, SET_SELECTABLE_MEASUREMENTS and SET_ACCOMPLISHED_MEASUREMENTS
+        %
+        
+            if nargin < 2 || isempty(w_var)
+                C = this.get_covariance_matrix();
+            else
+                C = this.get_covariance_matrix(w_var);
+            end
+            
+            if nargin < 3
+                alpha = this.options.get_alpha();
+            end
+            g = chi2inv(alpha, length(this.get_p()));
+            
+            v = sqrt(diag(C) * g);
         end
         
         

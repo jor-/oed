@@ -16,7 +16,7 @@ classdef solver_options < handle
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
+    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
 
     This file is part of the Optimal Experimental Design Toolbox.
 

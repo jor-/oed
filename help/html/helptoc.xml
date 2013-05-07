@@ -24,36 +24,40 @@
         <!-- User Guide comes next -->
         <tocitem target="Users_guide.html" 
             image="HelpIcon.USER_GUIDE">User's Guide
-            <tocitem target="Users_guide.html#1">Providing the model</tocitem>
-			<tocitem target="Users_guide.html#5">An experimental_design object</tocitem>
-			<tocitem target="Users_guide.html#10">Optimizing measuring points</tocitem>
-			<tocitem target="Users_guide.html#12">Estimating model parameters</tocitem>
-			<tocitem target="Users_guide.html#13">Changing the options</tocitem>
+            <tocitem target="Users_guide.html#1">Specify the model</tocitem>
+			<tocitem target="Users_guide.html#6">Creating and configuring an solver object</tocitem>
+			<tocitem target="Users_guide.html#11">Optimizing measurements</tocitem>
+			<tocitem target="Users_guide.html#13">Quality of measurements</tocitem>
+			<tocitem target="Users_guide.html#14">Optimizing model parameters</tocitem>
+			<tocitem target="Users_guide.html#15">Estimating uncertainty of optimized model parameters</tocitem>
+			<tocitem target="Users_guide.html#16">Changing the options</tocitem>
         </tocitem>
 
 		<!-- Function reference next -->
         <!-- The first file lists all of the functions, categorizing them -->
         <tocitem target="Functions.html" 
                  image="HelpIcon.FUNCTION">Functions
-			<tocitem target="Functions.html#1">Experimental design</tocitem>
+			<tocitem target="Functions.html#1">Solver</tocitem>
 			<tocitem target="Functions.html#2">Criteria</tocitem>
 			<tocitem target="Functions.html#3">Models</tocitem>
 			<tocitem target="Functions.html#4">Utilities</tocitem>
+			<tocitem target="Functions.html#5">Application examples</tocitem>
         </tocitem>
 
 		<!-- Optional List of Examples, with hyperlinks to examples in other files -->
         <tocitem target="Demos.html" 
                  image="HelpIcon.DEMOS">Demos
-            <tocitem target="Demos.html#1">Create experimental design object</tocitem>
-			<tocitem target="Demos.html#2">Calculate optimale measuring points</tocitem>
-			<tocitem target="Demos.html#3">Calulate quality of measuring points</tocitem>
-			<tocitem target="Demos.html#4">Estimate model parameter</tocitem>
-			<tocitem target="Demos.html#5">Calculate gain of additional measurments</tocitem>
-			<tocitem target="Demos.html#6">Constraints</tocitem>
+            <tocitem target="Demos.html#1">Create the model and the solver object</tocitem>
+			<tocitem target="Demos.html#2">Calculate optimal measurements</tocitem>
+			<tocitem target="Demos.html#3">Calulate quality of measurements</tocitem>
+			<tocitem target="Demos.html#4">Estimate model parameter from accomplished measurements</tocitem>
+			<tocitem target="Demos.html#5">Estimate uncertainty of optimized model parameters</tocitem>
+			<tocitem target="Demos.html#6">Calculate gain of additional measurements</tocitem>
+			<tocitem target="Demos.html#7">Calculate optimal measurements with constraints</tocitem>
         </tocitem>
 
         <!-- Optional link or links to your or other Web sites -->
-        <tocitem target="http://github.com/jor-/oed" 
+        <tocitem target="Website.html" 
                  image="$toolbox/matlab/icons/webicon.gif">Website
         </tocitem>
     </tocitem>

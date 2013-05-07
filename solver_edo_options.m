@@ -2,7 +2,6 @@ classdef solver_edo_options < handle
 % SOLVER_EDO_OPTIONS represents the options for the solver of the experimental design optimization problem.
 %
 % SOLVER_EDO_OPTIONS Methods:
-%     SOLVER_EDO_OPTIONS - creates a SOLVER_EDO_OPTIONS object.
 %     SET_OPTION - changes an option.
 %     GET_OPTION - returns the value of an option.
 %     GET_SOLVER_ALGORITHM - returns the algorithm to be used to solve the experimental design optimization problem.
@@ -10,11 +9,10 @@ classdef solver_edo_options < handle
 %     USE_ALGORITHM_DIRECT - returns whether to use the direct algorithm to solve the experimental design optimization problem or not.
 %     GET_MAX_FUN_EVALS - returns the maximal model evaluations done by the local SQP solver algorithm.
 %     GET_MAX_ITER - returns the maximal iterations done by the local SQP solver algorithm.
-%     GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in methods of these object.
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
+    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -93,8 +91,7 @@ classdef solver_edo_options < handle
             
         end
         
-        
-        
+                
         function set_option(this, name, value)
         % SET_OPTION changes an option.
         %
@@ -139,8 +136,7 @@ classdef solver_edo_options < handle
             % update option
             this.options.(name) = value;            
         end
-        
-        
+                
         
         function option = get_option(this, name)
         % GET_OPTION returns the value of an option.
@@ -166,8 +162,7 @@ classdef solver_edo_options < handle
                 error(this.get_message_identifier('get_option', 'unknown_option_name'), ['The option "', name, '" is not supported.']);  
             end
         end
-        
-        
+                
         
         function solver_algorithm = get_solver_algorithm(this)
         % GET_SOLVER_ALGORITHM returns the algorithm to be used to solve the experimental design optimization problem.

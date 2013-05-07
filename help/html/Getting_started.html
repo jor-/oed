@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Getting Started</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-03-21"><meta name="DC.source" content="Getting_started.m"><style type="text/css">
+      --><title>Getting Started</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-05-07"><meta name="DC.source" content="Getting_started.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -65,7 +65,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Getting Started</h1><!--introduction--><p>The requirements of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> and ways to get further help to the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are listed here.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">System Requirements</a></li><li><a href="#2">Tested environment</a></li><li><a href="#3">Further Help</a></li></ul></div><h2>System Requirements<a name="1"></a></h2><p>To use some of the features of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> some additional <tt>Matlab Toolboxes</tt> are required.</p><div><ul><li><tt>Optimization Toolbox</tt> - The <tt>Optimization Toolbox</tt> is needed for the local SQP solver and the parameter estimation.</li></ul></div><div><ul><li><tt>Statistics Toolbox</tt> - The <tt>Statistics Toolbox</tt> is needed for the region estimation.</li></ul></div><div><ul><li><tt>Symbolic Math Toolbox</tt> - The <tt>Symbolic Math Toolbox</tt> is needed for the explicit model (<a href="matlab:doc('model_explicit')"><tt>model_explicit</tt></a>) and the initial value problem model (<a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a>).</li></ul></div><div><ul><li><tt>Parallel Computing Toolbox</tt> - If the <tt>Parallel Computing Toolbox</tt> is available you can achieve a speedup for the initial value problem model (<a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a>).</li></ul></div><h2>Tested environment<a name="2"></a></h2><p>The <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> was tested with the following <tt>Matlab</tt> and <tt>Toolbox</tt> versions.</p><pre class="codeoutput">
+  </style></head><body><div class="content"><h1>Getting Started</h1><!--introduction--><p>The requirements of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> and ways to get further help to the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are listed here.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">System Requirements</a></li><li><a href="#2">Tested environment</a></li><li><a href="#3">Further Help</a></li></ul></div><h2>System Requirements<a name="1"></a></h2><p>To use some of the features of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> some additional <tt>Matlab Toolboxes</tt> are required.</p><div><ul><li><tt>Optimization Toolbox</tt> - The <tt>Optimization Toolbox</tt> is needed optimizing experimental designs with the local SQP solver and for optimizing the model parameters.</li></ul></div><div><ul><li><tt>Statistics Toolbox</tt> - The <tt>Statistics Toolbox</tt> is needed for the region estimation option for the optimization of experimental designs.</li></ul></div><div><ul><li><tt>Symbolic Math Toolbox</tt> - The <tt>Symbolic Math Toolbox</tt> is needed for the explicit model (<a href="matlab:doc('model_explicit')"><tt>model_explicit</tt></a>) and the initial value problem model (<a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a>).</li></ul></div><div><ul><li><tt>Parallel Computing Toolbox</tt> - If the <tt>Parallel Computing Toolbox</tt> is available you can achieve a speedup for the initial value problem model (<a href="matlab:doc('model_ivp')"><tt>model_ivp</tt></a>).</li></ul></div><h2>Tested environment<a name="2"></a></h2><p>The <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> was tested with the following <tt>Matlab</tt> and <tt>Toolbox</tt> versions.</p><pre class="codeoutput">
 Matlab_Version =
 
 8.0
@@ -103,11 +103,12 @@ Parallel_Computing_Toolbox_Version =
 % To use some of the features of the <matlab:doc('optimal_experimental_design_toolbox') |Optimal Experimental Design Toolbox|> some
 % additional |Matlab Toolboxes| are required.
 %
-% * |Optimization Toolbox| - The |Optimization Toolbox| is needed for the 
-% local SQP solver and the parameter estimation.
+% * |Optimization Toolbox| - The |Optimization Toolbox| is needed
+% optimizing experimental designs with the local SQP solver and for
+% optimizing the model parameters.
 %
 % * |Statistics Toolbox| - The |Statistics Toolbox| is needed for the region
-% estimation.
+% estimation option for the optimization of experimental designs.
 %
 % * |Symbolic Math Toolbox| - The |Symbolic Math Toolbox| is needed for the
 % explicit model (<matlab:doc('model_explicit') |model_explicit|>) and the

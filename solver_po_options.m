@@ -2,7 +2,6 @@ classdef solver_po_options < handle
 % SOLVER_PO_OPTIONS represents the options for the solver of the parameter optimization problem.
 %
 % SOLVER_PO_OPTIONS Methods:
-%     SOLVER_PO_OPTIONS - creates a SOLVER_PO_OPTIONS object.
 %     SET_OPTION - changes an option.
 %     GET_OPTION - returns the value of an option.
 %     GET_SOLVER_ALGORITHM - returns the algorithm to be used to solve the parameter optimization problem.
@@ -11,11 +10,10 @@ classdef solver_po_options < handle
 %	  SCALE_PARAMETERS - returns whether the parameters have to be scaled for the optimization or not.
 %     GET_MAX_FUN_EVALS - returns the maximal model evaluations done by the solver algorithm.
 %     GET_MAX_ITER - returns the maximal iterations done by the solver algorithm.
-%     GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in methods of these object.
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2013 Joscha Reimer jor@informatik.uni-kiel.de
+    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
 
     This file is part of the Optimal Experimental Design Toolbox.
 
