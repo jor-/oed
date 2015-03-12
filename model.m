@@ -11,7 +11,7 @@ classdef model < handle
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -31,11 +31,11 @@ classdef model < handle
 ---------------------------------------------------------------------------
 %}
 
-	properties
-	end
-	
-	methods (Abstract)
-		
+    properties
+    end
+    
+    methods (Abstract)
+        
         M = get_M(this, p, t)
         % GET_M returns the result of the model function with parameter P and experimental design T.
         %
@@ -50,7 +50,7 @@ classdef model < handle
         %     M: the result of the model function with parameter P and experimental design T
         %
         
-		dp_M = get_dp_M(this, p, t)
+        dp_M = get_dp_M(this, p, t)
         % GET_DP_M returns the first derivative of the model function with parameter P and experimental design T.
         %
         % Example:
@@ -63,9 +63,9 @@ classdef model < handle
         % Output:
         %     M: the first derivative of the model function with parameter P and experimental design T
         %
-		
-		dpdp_M = get_dpdp_M(this, p, t)
-		% GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
+        
+        dpdp_M = get_dpdp_M(this, p, t)
+        % GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_OBJECT.GET_DPDP_M(P, T)
@@ -77,8 +77,8 @@ classdef model < handle
         % Output:
         %     M: the second derivative of the model function with parameter P and experimental design T
         %
-		
-	end
-	
+        
+    end
+    
 end
 

@@ -14,7 +14,7 @@ classdef model_fd < model
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -69,7 +69,7 @@ classdef model_fd < model
         end
         
         function dpdp_M = get_dpdp_M(this, p, t)
-		% GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
+        % GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_FD_OBJECT.GET_DPDP_M(P, T)
@@ -81,7 +81,7 @@ classdef model_fd < model
         % Output:
         %     M: the second derivative of the model function with parameter P and experimental design T
         %
-		 
+         
             if ~ isequal(this.p, p) || ~ isequal(this.t, t) || isempty(this.dpdp_M)
                 dp_M = this.get_dp_M(p, t);
                 dpdp_M = util.approximate_Hessian(@(p) (this.get_M(p, t)), p, dp_M);

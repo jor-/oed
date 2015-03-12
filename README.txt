@@ -28,7 +28,7 @@ command.
 
 ## Copyright
 
-Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
 This file is part of the Optimal Experimental Design Toolbox.
 

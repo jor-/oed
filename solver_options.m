@@ -16,7 +16,7 @@ classdef solver_options < handle
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -58,10 +58,6 @@ classdef solver_options < handle
         parameter_estimation_yes = 'yes';
         parameter_estimation_no = 'no';
         
-        scale_covariance_matrix_id = 'scale_covariance_matrix';
-        scale_covariance_matrix_yes = 'yes';
-        scale_covariance_matrix_no = 'no';
-        
         solver_edo_options_id = 'solver_edo_options';
         solver_po_options_id = 'solver_po_options';
     end
@@ -76,7 +72,7 @@ classdef solver_options < handle
         %
         % Input:
         %     'parameter_estimation': whether a parameter estimation should
-        %     	  be performed before the optimal design estimation or not
+        %         be performed before the optimal design estimation or not
         %         (possible values: 'yes', 'no', default: 'no')
         %     'estimation_method': the method of the estimation of the
         %         quality of the experimental design (possible values: 
@@ -90,9 +86,6 @@ classdef solver_options < handle
         %     'criterion': the criterion for the quality of an experimental
         %         design (possible values: an object of the CRITERION class,
         %         default: a CRITERION_A object)
-        %     'scale_covariance_matrix': whether the covariance matrix should
-        %     	  be scaled or not
-        %         (possible values: 'yes', 'no', default: 'yes')
         %     'solver_edo_options': the solver to be used to solve the
         %         experimental design optimization problem (possible
         %         values: an object of the SOLVER_EDO_OPTIONS class,
@@ -118,7 +111,6 @@ classdef solver_options < handle
             this.set_option(this.criterion_id, criterion_A());
             this.set_option(this.estimation_method_id, this.estimation_method_region);
             this.set_option(this.parameter_estimation_id, this.parameter_estimation_no);
-            this.set_option(this.scale_covariance_matrix_id, this.scale_covariance_matrix_yes);
             this.set_option(this.solver_edo_options_id, solver_edo_options());
             this.set_option(this.solver_po_options_id, solver_po_options());
             
@@ -181,11 +173,6 @@ classdef solver_options < handle
                 case this.parameter_estimation_id
                     if ~ (isequal(value, this.parameter_estimation_yes) || isequal(value, this.parameter_estimation_no))
                         error(this.get_message_identifier('set_option', 'unknown_parameter_estimation_option'),  ['The value for "', name, '" has to be ', this.parameter_estimation_yes, ' or ', this.parameter_estimation_no, '.']);
-                    end
-                    this.options.(name) = value;
-                case this.scale_covariance_matrix_id
-                    if ~ (isequal(value, this.scale_covariance_matrix_yes) || isequal(value, this.scale_covariance_matrix_no))
-                        error(this.get_message_identifier('set_option', 'unknown_scale_covariance_matrix_option'),  ['The value for "', name, '" has to be ', this.scale_covariance_matrix_yes, ' or ', this.scale_covariance_matrix_no, '.']);
                     end
                     this.options.(name) = value;
                 case this.solver_edo_options_id
@@ -346,21 +333,6 @@ classdef solver_options < handle
         %
         
             boolean = isequal(this.get_option(this.parameter_estimation_id), this.parameter_estimation_yes);
-        end
-        
-        function boolean = use_scaling_for_covariance_matrix(this)
-        % USE_SCALING_FOR_COVARIANCE_MATRIX returns whether to scale the covariance matrix or not.
-        %
-        % Example:
-        %     SOLVER_OPTIONS_OBJECT.USE_SCALING_FOR_COVARIANCE_MATRIX()
-        %
-        % Output:
-        %     BOOLEAN: whether to scale the covariance matrix or not
-        %
-        % see also SOLVER_OPTIONS.SOLVER_OPTIONS
-        %
-        
-            boolean = isequal(this.get_option(this.scale_covariance_matrix_id), this.scale_covariance_matrix_yes);
         end
         
         function solver_edo_options = get_solver_edo_options(this)

@@ -14,7 +14,7 @@ classdef model_explicit < model
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -104,7 +104,7 @@ classdef model_explicit < model
         end
         
         function dpdp_M = get_dpdp_M(this, p, t)
-		% GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
+        % GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
         %
         % Example:
         %     M = MODEL_EXPLICIT_OBJECT.GET_DPDP_M(P, T)
@@ -116,7 +116,7 @@ classdef model_explicit < model
         % Output:
         %     M: the second derivative of the model function with parameter P and experimental design T
         %
-		 
+         
             dpdp_M = this.substitute(this.dpdp_f_sym, p, t);
         end
         
@@ -140,6 +140,7 @@ classdef model_explicit < model
         %
             tmp_sym = subs(f_sym, this.p_sym, p);
             result = subs(tmp_sym, this.t_sym, t);
+            result = double(result);
         end
         
     end

@@ -19,7 +19,7 @@ classdef model_C2 < model
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -172,7 +172,7 @@ classdef model_C2 < model
                 E = this.get_E();
 
                 % calculate flooded time span
-                r = subs(solve(h_sym - E));
+                r = double(subs(solve(h_sym - E)));
 
                 if length(r) ~= 2 || not(isreal(r))
                     error('Es konnten nicht die Zeitspanne bestimmt werden, in der die Wiese ueberflutet ist. Vielleicht ist die Wiese immer oder nie ueberflutet? Stellen Sie sicher, dass "a > E - h_HW + h_MHW" gilt.');

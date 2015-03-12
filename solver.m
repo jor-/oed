@@ -10,13 +10,6 @@ classdef solver < handle
 %   GET_OPTIMAL_WEIGHTS - returns the optimal weights of the measurements.
 %   GET_QUALITY - returns the quality resulting from the passed weights
 %       of the measurements.
-%   GET_COVARIANCE_MATRIX - returns the covarinace matrix of the parameters
-%       resulting from the accomplished and the by the passed weights
-%       selected measurements.
-%   GET_CONFIDENCE_INTERVALS - returns the absolute values by which the
-%       optimal parameters resulting from the accomplished and the by the
-%       passed weights selected measurements maximally vary from the true
-%       parameters with the passed probability.
 %   SET_MODEL - sets the model which will be used for the computations. 
 %   SET_INITIAL_PARAMETER_ESTIMATION - sets the initial estimation of the
 %       model parameter. 
@@ -40,7 +33,7 @@ classdef solver < handle
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -628,7 +621,7 @@ classdef solver < handle
                 t = this.get_t();
                 v = this.get_v();
                 w_var = this.get_w_var();
-                if this.options.use_scaling_for_covariance_matrix()
+                if this.options.get_solver_edo_options().scale_parameters()
                     S = this.get_S();
                 else
                     S = eye(length(p));
@@ -654,7 +647,7 @@ classdef solver < handle
         
         % ******************* GET_QUALITY ******************* %
         function quality = get_quality(this, w_var)
-        % GET_QUALITY returns the quality resulting from the accomplished and the by the passed weights selected measurements.
+        % GET_QUALITY returns the quality resulting from the accomplished and the by the passed weights W_VAR selected measurements.
         % The smaller the value, the better the quality.
         %
         % Example:
@@ -687,7 +680,7 @@ classdef solver < handle
             p = this.get_p();
             t = this.get_t();
             v = this.get_v();
-            if this.options.use_scaling_for_covariance_matrix()
+            if this.options.get_solver_edo_options().scale_parameters()
                 S = this.get_S();
             else
                 S = eye(length(p));
@@ -708,7 +701,7 @@ classdef solver < handle
         
         % ******************* GET_COVARIANCE_MATRIX ******************* %
         function C = get_covariance_matrix(this, w_var)
-        % GET_COVARIANCE_MATRIX returns the covarinace matrix of the parameters resulting from the accomplished and the by the passed weights selected measurements.
+        % GET_COVARIANCE_MATRIX returns the covarinace matrix of the parameters resulting from the accomplished and the by the passed weights W_VAR selected measurements.
         %
         % Example:
         %     C = SOLVER_OBJECT.GET_COVARIANCE_MATRIX(W_VAR)
@@ -748,7 +741,7 @@ classdef solver < handle
         
         % ******************* GET_CONFIDENCE_INTERVALS ******************* %
         function v = get_confidence_intervals(this, w_var, alpha)
-        % GET_CONFIDENCE_INTERVALS returns the absolute values by which the optimal parameters resulting from the accomplished and the by the passed weights selected measurements maximally vary from the true parameters with the passed probability.
+        % GET_CONFIDENCE_INTERVALS returns the absolute values by which the optimal parameters maximally vary from the true parameters with a probability of alpha.
         %
         % Example:
         %     V = SOLVER_OBJECT.GET_CONFIDENCE_INTERVALS(W_VAR, ALPHA)
@@ -762,9 +755,8 @@ classdef solver < handle
         %
         % Output:
         %     V: the absolute values by which the optimal parameters
-        %        resulting from the accomplished and the by the passed
-        %        weights selected measurements maximally vary from the true
-        %        parameters with the passed probability.
+        %        maximally vary from the true parameters with a probability
+        %        of alpha.
         %
         % The model, an initial estimation of the parameter and the
         % selectable measurements must have been set via the associated
@@ -934,7 +926,7 @@ classdef solver < handle
         %
         %     Possible options are:
         %     'parameter_estimation': whether a parameter estimation should
-        %     	  be performed before the optimal design estimation or not
+        %         be performed before the optimal design estimation or not
         %         (possible values: 'yes', 'no', default: 'no')
         %     'estimation_method': the method of the estimation of the
         %         quality of the experimental design (possible values: 
@@ -948,9 +940,6 @@ classdef solver < handle
         %     'criterion': the criterion for the quality of an experimental
         %         design (possible values: an object of the CRITERION class,
         %         default: a CRITERION_A object)
-        %     'scale_covariance_matrix': whether the covariance matrix should
-        %     	  be scaled or not
-        %         (possible values: 'yes', 'no', default: 'yes')
         %     'solver_edo_options': the solver to be used to solve the
         %         experimental design optimization problem (possible
         %         values: an object of the SOLVER_EDO_OPTIONS class,
@@ -958,6 +947,8 @@ classdef solver < handle
         %     'edo_algorithm': the method to be used to solve the experimental
         %         design optimization problem (possible values: 'direct', 
         %         'local_sqp', default: 'local_sqp')
+        %     'edo_scale_parameters': whether the parameters should be scaled 
+        %         or not (possible values: 'yes', 'no', default: 'yes')
         %     'edo_max_fun_evals': the number of maximal model evaluations done
         %         by the 'local_sqp' solver (possible values: a non-negative integer,
         %         default: 10^3)
@@ -966,7 +957,7 @@ classdef solver < handle
         %     'po_algorithm': the method to be used to solve the parameter
         %         optimization problem (possible values: 'trust-region-reflectiv', 
         %         'levenberg-marquardt', default: 'trust-region-reflectiv')
-        %     'po_scale_parameter': whether the parameter have to be scaled
+        %     'po_scale_parameters': whether the parameters have to be scaled
         %         for the optimization (possible values: 'yes', 'no',
         %         default: 'no')
         %     'po_max_fun_evals': the number of maximal model evaluations done
@@ -998,8 +989,8 @@ classdef solver < handle
                     if ~ isequal(this.options.use_parameter_estimation(), value)
                         event_id = 'event_p_changed';
                     end
-                case solver_options.scale_covariance_matrix_id
-                    if ~ isequal(this.options.use_scaling_for_covariance_matrix(), value)
+                case solver_options.get_solver_edo_options().scale_parameters_id
+                    if ~ isequal(this.options.get_solver_edo_options().scale_parameters(), value)
                         event_id = 'event_v_changed';
                     end
             end
@@ -1011,6 +1002,28 @@ classdef solver < handle
             if ~ isempty(event_id)
                 notify(this, event_id)
             end
+        end
+                
+        
+        function g = get_g(this)
+        % GET_G returns the radius of the neighborhood of the parameters P for which the weights of the measurements will be optimized.
+        %
+        % Example:
+        %     G = SOLVER_OBJECT.GET_G()
+        %
+        % Output:
+        %     G: the radius of the neighborhood of the parameters P for
+        %        which the weights of the measurements will be
+        %        optimized
+        %
+        % Throws:
+        %     an error if g is not set.
+        %
+        % see also SET_ALPHA
+        %
+        
+            alpha = this.options.get_alpha();
+            g = chi2inv(alpha, length(this.get_p()));
         end
          
     end
@@ -1589,10 +1602,6 @@ classdef solver < handle
                 dw_phiR = this.dw_phiR;
             end
             
-if not(all(isreal(dw_phiR)))
-    display(dw_phiR);
-    display(w_var);
-end
         end
         
         
@@ -1894,7 +1903,7 @@ end
             S = diag(p.^(-1));
             %dim_p = length(p);
             
-            %if this.options.use_scaling_for_covariance_matrix()
+            %if this.options.get_solver_edo_options().scale_parameters()
             %    S = spdiags(p.^(-1), 0, dim_p, dim_p);
             %else
             %    S = spdiags(ones(dim_p,1), 0, dim_p, dim_p);
@@ -1928,27 +1937,6 @@ end
         end
                 
         
-        
-        function g = get_g(this)
-        % GET_G returns the radius of the neighborhood of the parameters P for which the weights of the measurements will be optimized.
-        %
-        % Example:
-        %     G = SOLVER_OBJECT.GET_G()
-        %
-        % Output:
-        %     G: the radius of the neighborhood of the parameters P for
-        %        which the weights of the measurements will be
-        %        optimized
-        %
-        % Throws:
-        %     an error if g is not set.
-        %
-        % see also SET_ALPHA
-        %
-        
-            alpha = this.options.get_alpha();
-            g = chi2inv(alpha, length(this.get_p()));
-        end
         
         function criterion = get_criterion(this)
         % GET_CRITERION returns the criterion which characterize the quality of the weights of the measurements.

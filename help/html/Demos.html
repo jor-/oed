@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Demos</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-05-07"><meta name="DC.source" content="Demos.m"><style type="text/css">
+      --><title>Demos</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-03-12"><meta name="DC.source" content="Demos.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Demos</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here with an example.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model and the solver object</a></li><li><a href="#2">Calculate optimal measurements</a></li><li><a href="#3">Calculate quality of measurements</a></li><li><a href="#4">Estimate model parameter from accomplished measurements</a></li><li><a href="#5">Estimate uncertainty of optimized model parameters</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2>Create the model and the solver object<a name="1"></a></h2><pre class="codeinput">p = 1;                                     <span class="comment">% Parameter of the model</span>
+  </style></head><body><div class="content"><h1>Demos</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here with an example.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model and the solver object</a></li><li><a href="#2">Calculate optimal measurements</a></li><li><a href="#3">Calculate quality of measurements</a></li><li><a href="#4">Estimate model parameter from accomplished measurements</a></li><li><a href="#5">Calculate gain of additional measurements</a></li><li><a href="#6">Calculate optimal measurements with constraints</a></li></ul></div><h2>Create the model and the solver object<a name="1"></a></h2><pre class="codeinput">p = 1;                                     <span class="comment">% Parameter of the model</span>
 p0 = (1 + rand()) * p                      <span class="comment">% Guessed parameter value</span>
 
 n = 5;                                     <span class="comment">% Number of selectable measurements</span>
@@ -77,7 +78,7 @@ sol = solver(model, p0, t_var', v_var');   <span class="comment">% Create the so
 </pre><pre class="codeoutput">
 p0 =
 
-    1.1835
+    1.8147
 
 
 t_var =
@@ -108,7 +109,7 @@ w_opt =
 
 quality_opt =
 
-    0.0036
+    0.0015
 
 
 w_subopt =
@@ -118,50 +119,37 @@ w_subopt =
 
 quality_subopt =
 
-    0.0127
+    0.0054
 
-</pre><h2>Estimate model parameter from accomplished measurements<a name="4"></a></h2><pre class="codeinput">m = 10;                                                                         <span class="comment">% Number of accomplished measurements</span>
+</pre><h2>Estimate model parameter from accomplished measurements<a name="4"></a></h2><pre class="codeinput">m = 5;                                                                         <span class="comment">% Number of accomplished measurements</span>
 t_fix = ((1/m:1/m:1) + 1)';                                                    <span class="comment">% Accomplished measurements</span>
-v_fix = 10^-2 * ones(m, 1);                                                    <span class="comment">% Variance of measurement result at these measurements</span>
+v_fix = 10^-2 * ones(n, 1);                                                    <span class="comment">% Variance of measurement result at these measurements</span>
 eta = model_util.get_fictitious_measurement_results(model, p, t_fix, v_fix);   <span class="comment">% Measurement results of the accomplished measurements</span>
 sol.set_accomplished_measurements(t_fix, v_fix, eta);                          <span class="comment">% Pass accomplished measurements to the solver object</span>
-p_lb = 0;                                                                      <span class="comment">% Lower bound of model parameter</span>
+p_lw = 0;                                                                      <span class="comment">% Lower bound of model parameter</span>
 p_ub = 2;                                                                      <span class="comment">% Upper bound of model parameter</span>
-p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                 <span class="comment">% Optimize model parameter from accomplished measurements</span>
+p_opt = sol.get_optimal_parameters(p_lw, p_ub)                                 <span class="comment">% Optimize model parameter from accomplished measurements</span>
 </pre><pre class="codeoutput">
 p_opt =
 
-    1.0062
+    0.9988
 
-</pre><h2>Estimate uncertainty of optimized model parameters<a name="5"></a></h2><pre class="codeinput">confidence_intervals = sol.get_confidence_intervals();	<span class="comment">% Calculate absolute values by which the optimized parameters differ from the real parameters at most with a probability of 95%</span>
-p_real_lb = p_opt - confidence_intervals                <span class="comment">% Lower bound of real model parameter</span>
-p_real_ub = p_opt + confidence_intervals                <span class="comment">% Lower bound of real model parameter</span>
-</pre><pre class="codeoutput">
-p_real_lb =
-
-    0.9669
-
-
-p_real_ub =
-
-    1.0455
-
-</pre><h2>Calculate gain of additional measurements<a name="6"></a></h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
+</pre><h2>Calculate gain of additional measurements<a name="5"></a></h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max)';         <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
 quality_old = sol.get_quality(zeros(n, 1))     <span class="comment">% Calculate quality without additional measurements</span>
 quality_new = sol.get_quality(w_opt)           <span class="comment">% Calculate quality resulting from optimal additional measurements</span>
 </pre><pre class="codeoutput">
 quality_old =
 
-   3.9747e-04
+   7.5944e-04
 
 
 quality_new =
 
-   3.6786e-04
+   6.5952e-04
 
-</pre><h2>Calculate optimal measurements with constraints<a name="7"></a></h2><p>We are constraining the choose of measurements in such a way that distance between two choosen measurements has to be at least 0.4.</p><pre class="codeinput">A = diag(ones(n, 1)) + diag(ones(n - 1, 1), 1)   <span class="comment">% Matrix for the constraints of the measurements</span>
-b = ones(1, n)                                   <span class="comment">% Vector for the constraints of the measurements</span>
+</pre><h2>Calculate optimal measurements with constraints<a name="6"></a></h2><p>We are constraining the choose of measurements in such a way that distance between two choosen measurements has to be at least 0.4.</p><pre class="codeinput">A = diag(ones(m, 1)) + diag(ones(m - 1, 1), 1)   <span class="comment">% Matrix for the constraints of the measurements</span>
+b = ones(1, m)                                   <span class="comment">% Vector for the constraints of the measurements</span>
 t_opt = sol.get_optimal_measurements(A, b')'     <span class="comment">% Calculate the optimal measurements of the selectable measurements considering the constraints</span>
 </pre><pre class="codeoutput">
 A =
@@ -182,7 +170,7 @@ t_opt =
 
     0.2000    0.6000    1.0000
 
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Demos
 % Different use cases of the <matlab:doc('optimal_experimental_design_toolbox')
@@ -215,22 +203,15 @@ quality_subopt = sol.get_quality(w_subopt)     % Calculate quality resulting fro
 
 
 %% Estimate model parameter from accomplished measurements
-m = 10;                                                                         % Number of accomplished measurements
+m = 5;                                                                         % Number of accomplished measurements
 t_fix = ((1/m:1/m:1) + 1)';                                                    % Accomplished measurements
-v_fix = 10^-2 * ones(m, 1);                                                    % Variance of measurement result at these measurements
+v_fix = 10^-2 * ones(n, 1);                                                    % Variance of measurement result at these measurements
 eta = model_util.get_fictitious_measurement_results(model, p, t_fix, v_fix);   % Measurement results of the accomplished measurements
 sol.set_accomplished_measurements(t_fix, v_fix, eta);                          % Pass accomplished measurements to the solver object
-p_lb = 0;                                                                      % Lower bound of model parameter
+p_lw = 0;                                                                      % Lower bound of model parameter
 p_ub = 2;                                                                      % Upper bound of model parameter
-p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                 % Optimize model parameter from accomplished measurements
+p_opt = sol.get_optimal_parameters(p_lw, p_ub)                                 % Optimize model parameter from accomplished measurements
 
-
-%% Estimate uncertainty of optimized model parameters
-
-confidence_intervals = sol.get_confidence_intervals();	% Calculate absolute values by which the optimized parameters differ from the real parameters at most with a probability of 95%
-p_real_lb = p_opt - confidence_intervals                % Lower bound of real model parameter
-p_real_ub = p_opt + confidence_intervals                % Lower bound of real model parameter
- 
 
 %% Calculate gain of additional measurements
 sol.set_initial_parameter_estimation(p_opt);   % Update parameter estimation
@@ -242,8 +223,8 @@ quality_new = sol.get_quality(w_opt)           % Calculate quality resulting fro
 %% Calculate optimal measurements with constraints
 % We are constraining the choose of measurements in such a way that
 % distance between two choosen measurements has to be at least 0.4.
-A = diag(ones(n, 1)) + diag(ones(n - 1, 1), 1)   % Matrix for the constraints of the measurements
-b = ones(1, n)                                   % Vector for the constraints of the measurements
+A = diag(ones(m, 1)) + diag(ones(m - 1, 1), 1)   % Matrix for the constraints of the measurements
+b = ones(1, m)                                   % Vector for the constraints of the measurements
 t_opt = sol.get_optimal_measurements(A, b')'     % Calculate the optimal measurements of the selectable measurements considering the constraints
 
 ##### SOURCE END #####

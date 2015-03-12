@@ -2,18 +2,20 @@ classdef solver_po_options < handle
 % SOLVER_PO_OPTIONS represents the options for the solver of the parameter optimization problem.
 %
 % SOLVER_PO_OPTIONS Methods:
+%     SOLVER_PO_OPTIONS - creates a SOLVER_PO_OPTIONS object.
 %     SET_OPTION - changes an option.
 %     GET_OPTION - returns the value of an option.
 %     GET_SOLVER_ALGORITHM - returns the algorithm to be used to solve the parameter optimization problem.
 %     USE_ALGORITHM_TRUST_REGION_REFLECTIVE - returns whether to use the Trust-Region-Reflective algorithm to solve the parameter optimization problem or not.
 %     USE_ALGORITHM_LEVENBERG_MARQUARDT - returns whether to use the Levenberg-Marquardt algorithm to solve the parameter optimization problem or not.
-%	  SCALE_PARAMETERS - returns whether the parameters have to be scaled for the optimization or not.
+%     SCALE_PARAMETERS - returns whether the parameters have to be scaled for the optimization or not.
 %     GET_MAX_FUN_EVALS - returns the maximal model evaluations done by the solver algorithm.
 %     GET_MAX_ITER - returns the maximal iterations done by the solver algorithm.
+%     GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in methods of these object.
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -42,9 +44,9 @@ classdef solver_po_options < handle
         algorithm_trust_region_reflective = 'trust-region-reflective';
         algorithm_levenberg_marquardt = 'levenberg-marquardt';
         
-        scale_parameter_id = 'po_scale_parameter';
-        scale_parameter_yes = 'yes';
-        scale_parameter_no = 'no';
+        scale_parameters_id = 'po_scale_parameters';
+        scale_parameters_yes = 'yes';
+        scale_parameters_no = 'no';
         
         max_fun_evals_id = 'po_max_fun_evals';
         max_iter_id = 'po_max_iter';
@@ -64,7 +66,7 @@ classdef solver_po_options < handle
         %     'po_algorithm': the method to be used to solve the parameter
         %         optimization problem (possible values: 'trust-region-reflective', 
         %         'levenberg-marquardt', default: 'trust-region-reflectiv')
-        %     'po_scale_parameter': whether the parameter have to be scaled
+        %     'po_scale_parameters': whether the parameter have to be scaled
         %         for the optimization (possible values: 'yes', 'no',
         %         default: 'yes')
         %     'po_max_fun_evals': the number of maximal model evaluations done
@@ -85,7 +87,7 @@ classdef solver_po_options < handle
             
             % set default options
             this.set_option(this.algorithm_id, this.algorithm_trust_region_reflective);
-            this.set_option(this.scale_parameter_id, this.scale_parameter_yes);
+            this.set_option(this.scale_parameters_id, this.scale_parameters_yes);
             this.set_option(this.max_fun_evals_id, 3 * 10^3);
             this.set_option(this.max_iter_id, 3 * 10^3);
             
@@ -95,7 +97,7 @@ classdef solver_po_options < handle
                     this.set_option(varargin{i}, varargin{i+1});
                 end
             else
-            	error(this.get_message_identifier('solver_po_options', 'wrong_number_of_arguments'), 'The number of input arguments is odd. Please check the input arguments.');
+                error(this.get_message_identifier('solver_po_options', 'wrong_number_of_arguments'), 'The number of input arguments is odd. Please check the input arguments.');
             end            
             
         end        
@@ -130,9 +132,9 @@ classdef solver_po_options < handle
                           isequal(value, this.algorithm_levenberg_marquardt))
                         error(this.get_message_identifier('set_option', 'unknown_algorithm'), ['The value for "' name '" has to be ' this.algorithm_local_sqp, ' or ' this.algorithm_direct '.']);
                     end
-                case this.scale_parameter_id
-                    if ~ (isequal(value, this.scale_parameter_yes) || isequal(value, this.scale_parameter_no))
-                        error(this.get_message_identifier('set_option', 'unknown_scale_parameter_option'),  ['The value for "', name, '" has to be ', this.scale_parameter_yes, ' or ', this.scale_parameter_no, '.']);
+                case this.scale_parameters_id
+                    if ~ (isequal(value, this.scale_parameters_yes) || isequal(value, this.scale_parameters_no))
+                        error(this.get_message_identifier('set_option', 'unknown_scale_parameters_option'),  ['The value for "', name, '" has to be ', this.scale_parameters_yes, ' or ', this.scale_parameters_no, '.']);
                     end
                 case this.max_fun_evals_id
                     if ~ (isscalar(value) && value == fix(value))
@@ -229,7 +231,7 @@ classdef solver_po_options < handle
         % SCALE_PARAMETERS returns whether the parameters have to be scaled for the optimization or not.
         %
         % Example:
-        %     SOLVER_PO_OPTIONS_OBJECT.USE_ALGORITHM_LEVENBERG_MARQUARDT_SCALED()
+        %     SOLVER_PO_OPTIONS_OBJECT.SCALE_PARAMETERS()
         %
         % Output:
         %     BOOLEAN: whether the parameters have to be scaled for the
@@ -238,7 +240,7 @@ classdef solver_po_options < handle
         % see also SOLVER_PO_OPTIONS.SOLVER_PO_OPTIONS, SET_OPTION
         %
         
-            boolean = isequal(this.get_option(this.scale_parameter_id), this.scale_parameter_yes);
+            boolean = isequal(this.get_option(this.scale_parameters_id), this.scale_parameters_yes);
         end
         
         function max_fun_evals = get_max_fun_evals(this)

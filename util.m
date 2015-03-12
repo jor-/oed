@@ -1,18 +1,16 @@
 classdef util
-	
+    
 % UTIL represents an utility class with static auxiliary methods for the toolbox.
 %
 % UTIL Methods:
 %   MAKE_COLUMN_VECTOR - makes the passed vector to a column vector.
 %   MAKE_ROW_VECTOR - makes the passed vector to a row vector.
 %   MAKE_SYM - returns the parsed string as symbolic formula.
-%	APPROXIMATE_JACOBIAN - approximates the first derivative of a function with finite differences.
-%	APPROXIMATE_HESSIAN - approximates the second derivative of a function with finite differences.
 %   GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in this toolbox.
         
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -91,7 +89,6 @@ classdef util
             end
         end
         
-        
         function f_sym = make_sym(f)
         % MAKE_SYM returns the parsed string or cell array of strings as symbolic formulas.
         %
@@ -118,28 +115,7 @@ classdef util
             end
         end
         
-        
-        
         function Jacobian = approximate_Jacobian(F, x, order, Fx)
-        % APPROXIMATE_JACOBIAN approximates the first derivative of a function with finite differences.
-        %
-        % Example:
-        %     JACOBIAN = UTIL.APPROXIMATE_JACOBIAN(F, X, ORDER, FX)
-        %
-        % Input:
-        %     F: the function which derivative has to be approximated
-        %     X: the value for which the derivative has to be approximated
-        %     ORDER: the order of the approximation (optional,
-        %            values: 1 or 2, default: 2)
-        %     X: the value of F at X (optional)
-        %
-        % Output:
-        %     JACOBIAN: an approximation of the first derivative of a function with finite differences.
-        %
-        % Throws:
-        %     An error if ORDER is not 1 or 2.
-        %
-        
             if nargin < 3
                 order = 2;
             end
@@ -170,21 +146,8 @@ classdef util
             end
         end
         
-        function Hessian = approximate_Hessian(F, x, grad_Fx)
-        % APPROXIMATE_HESSIAN approximates the second derivative of a function with finite differences.
-        %
-        % Example:
-        %     HESSIAN = UTIL.APPROXIMATE_HESSIAN(F, X, GRAD_FX)
-        %
-        % Input:
-        %     F: the function which derivative has to be approximated
-        %     X: the value for which the derivative has to be approximated
-        %     GRAD_FX: the first derivative of F at X (optional)
-        %
-        % Output:
-        %     HESSIAN: an approximation of the second derivative of a function with finite differences.
-        %
         
+        function Hessian = approximate_Hessian(F, x, grad_Fx)
             grad_F = @(x) (util.approximate_Jacobian(F, x, 2));
             if nargin < 3
                 grad_Fx = grad_F(x);
@@ -194,7 +157,6 @@ classdef util
             
             Hessian = (Hessian + Hessian') / 2;
         end
-        
         
         function id = get_message_identifier(class, method, mnemonic)
         % GET_MESSAGE_IDENTIFIER returns the identifier for an error or a warning raised in this toolbox.
@@ -212,7 +174,8 @@ classdef util
         %
         
             id = ['optimal_experimental_design_toolbox:', class, ':', method, ':', mnemonic];
-        end                        
+        end
+                                
     end  
     
     methods (Access = protected, Static)

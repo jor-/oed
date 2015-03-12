@@ -2,17 +2,20 @@ classdef solver_edo_options < handle
 % SOLVER_EDO_OPTIONS represents the options for the solver of the experimental design optimization problem.
 %
 % SOLVER_EDO_OPTIONS Methods:
+%     SOLVER_EDO_OPTIONS - creates a SOLVER_EDO_OPTIONS object.
 %     SET_OPTION - changes an option.
 %     GET_OPTION - returns the value of an option.
 %     GET_SOLVER_ALGORITHM - returns the algorithm to be used to solve the experimental design optimization problem.
 %     USE_ALGORITHM_LOCAL_SQP - returns whether to use the local SQP algorithm to solve the relaxed experimental design optimization problem or not.
 %     USE_ALGORITHM_DIRECT - returns whether to use the direct algorithm to solve the experimental design optimization problem or not.
+%     SCALE_PARAMETERS - returns whether the parameters have to be scaled for the optimization or not.
 %     GET_MAX_FUN_EVALS - returns the maximal model evaluations done by the local SQP solver algorithm.
 %     GET_MAX_ITER - returns the maximal iterations done by the local SQP solver algorithm.
+%     GET_MESSAGE_IDENTIFIER - returns the identifier for an error or a warning raised in methods of these object.
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -41,6 +44,10 @@ classdef solver_edo_options < handle
         algorithm_direct = 'direct';
         algorithm_local_sqp = 'local_sqp';
         
+        scale_parameters_id = 'scale_parameters';
+        scale_parameters_yes = 'yes';
+        scale_parameters_no = 'no';
+        
         max_fun_evals_id = 'edo_max_fun_evals';
         max_iter_id = 'edo_max_iter';
         
@@ -59,6 +66,8 @@ classdef solver_edo_options < handle
         %     'edo_algorithm': the method to be used to solve the experimental
         %         design optimization problem (possible values: 'direct', 
         %         'local_sqp', default: 'local_sqp')
+        %     'edo_scale_parameters': whether the parameters should be scaled
+        %         or not (possible values: 'yes', 'no', default: 'yes')
         %     'edo_max_fun_evals': the number of maximal model evaluations done
         %         by the 'local_sqp' solver (possible values: a non-negative integer,
         %         default: 10^3)
@@ -77,6 +86,7 @@ classdef solver_edo_options < handle
             
             % set default options
             this.set_option(this.algorithm_id, this.algorithm_local_sqp);
+            this.set_option(this.scale_parameters_id, this.scale_parameters_yes);
             this.set_option(this.max_fun_evals_id, 10^3);
             this.set_option(this.max_iter_id, 10^3);
             
@@ -86,12 +96,13 @@ classdef solver_edo_options < handle
                     this.set_option(varargin{i}, varargin{i+1});
                 end
             else
-            	error(this.get_message_identifier('solver_edo_options', 'wrong_number_of_arguments'), 'The number of input arguments is odd. Please check the input arguments.');
+                error(this.get_message_identifier('solver_edo_options', 'wrong_number_of_arguments'), 'The number of input arguments is odd. Please check the input arguments.');
             end            
             
         end
         
-                
+        
+        
         function set_option(this, name, value)
         % SET_OPTION changes an option.
         %
@@ -121,6 +132,11 @@ classdef solver_edo_options < handle
                           isequal(value, this.algorithm_direct))
                         error(this.get_message_identifier('set_option', 'unknown_algorithm'), ['The value for "' name '" has to be ' this.algorithm_local_sqp, ' or ' this.algorithm_direct '.']);
                     end
+                case this.scale_parameters_id
+                    if ~ (isequal(value, this.scale_parameters_yes) || isequal(value, this.scale_parameters_no))
+                        error(this.get_message_identifier('set_option', 'unknown_edo_scale_parameters_option'),  ['The value for "', name, '" has to be ', this.scale_parameters_yes, ' or ', this.scale_parameters_no, '.']);
+                    end
+                    this.options.(name) = value;
                 case this.max_fun_evals_id
                     if ~ (isscalar(value) && value == fix(value))
                         error(this.get_message_identifier('set_option', 'no_scalar_integer'), ['The value for "', name, '" has to be scalar integer.']);
@@ -136,7 +152,8 @@ classdef solver_edo_options < handle
             % update option
             this.options.(name) = value;            
         end
-                
+        
+        
         
         function option = get_option(this, name)
         % GET_OPTION returns the value of an option.
@@ -162,7 +179,8 @@ classdef solver_edo_options < handle
                 error(this.get_message_identifier('get_option', 'unknown_option_name'), ['The option "', name, '" is not supported.']);  
             end
         end
-                
+        
+        
         
         function solver_algorithm = get_solver_algorithm(this)
         % GET_SOLVER_ALGORITHM returns the algorithm to be used to solve the experimental design optimization problem.
@@ -210,6 +228,22 @@ classdef solver_edo_options < handle
         %
         
             boolean = isequal(this.get_solver_algorithm(), this.use_algorithm_direct);
+        end
+        
+        function boolean = scale_parameters(this)
+        % SCALE_PARAMETERS returns whether the parameters have to be scaled for the optimization or not.
+        %
+        % Example:
+        %     SOLVER_EDO_OPTIONS_OBJECT.SCALE_PARAMETERS()
+        %
+        % Output:
+        %     BOOLEAN: whether the parameters have to be scaled for the
+        %              optimization or not.
+        %
+        % see also SOLVER_EDO_OPTIONS.SOLVER_EDO_OPTIONS, SET_OPTION
+        %
+        
+            boolean = isequal(this.get_option(this.scale_parameters_id), this.scale_parameters_yes);
         end
         
         function max_fun_evals = get_max_fun_evals(this)

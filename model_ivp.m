@@ -17,7 +17,7 @@ classdef model_ivp < model
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -202,9 +202,9 @@ classdef model_ivp < model
                 x_span = this.get_x_span(); 
                 
                 f_tmp = simplify(subs(f_sym, p_sym, p));
-                f = @(x, y) (subs(subs(f_tmp, [x_sym, y_sym], [x, y])));
+                f = @(x, y) (double(subs(subs(f_tmp, [x_sym, y_sym], [x, y]))));
                                
-                y0 = subs(y0_sym, p_sym, p);
+                y0 = double(subs(y0_sym, p_sym, p));
                 
                 y = this.solve_ODE(f, x_span, y0);
                 
@@ -269,7 +269,7 @@ classdef model_ivp < model
                 p = this.get_p();
                 
                 dp_f_tmp = simplify(subs(dp_f_sym, p_sym, p));
-                dp_y0 = subs(dp_y0_sym, p_sym, p);
+                dp_y0 = double(subs(dp_y0_sym, p_sym, p));
                 
                 x_sym = this.get_x_sym();            
                 y_sym = this.get_y_sym();
@@ -283,7 +283,7 @@ classdef model_ivp < model
                 parfor i=1:n
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n)]);
                     
-                    dpi_f = @(x, dp_y) (subs(subs(dp_f_tmp(i), [x_sym, y_sym, dp_y_sym(i)], [x, y(x), dp_y])));
+                    dpi_f = @(x, dp_y) (double(subs(subs(dp_f_tmp(i), [x_sym, y_sym, dp_y_sym(i)], [x, y(x), dp_y]))));
                     dp_y_cell{i} = this.solve_ODE(dpi_f, x_span, dp_y0(i));
                     
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n) ' END']);
@@ -368,7 +368,7 @@ classdef model_ivp < model
                 p = this.get_p();
                                 
                 dpdp_f_tmp = simplify(subs(dpdp_f_sym, p_sym, p));
-                dpdp_y0 = subs(dpdp_y0_sym, p_sym, p);
+                dpdp_y0 = double(subs(dpdp_y0_sym, p_sym, p));
                 
                 x_sym = this.get_x_sym();            
                 y_sym = this.get_y_sym();   
@@ -396,7 +396,7 @@ classdef model_ivp < model
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l)]);  
                     
-                    dpidpj_f = @(x, dpdp_y) (subs(subs(dpdp_f_tmp(i, j), [x_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [x, y(x), dp_y(x).', dpdp_y])));
+                    dpidpj_f = @(x, dpdp_y) (double(subs(subs(dpdp_f_tmp(i, j), [x_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [x, y(x), dp_y(x).', dpdp_y]))));
                     dpdp_y_cell{k} = this.solve_ODE(dpidpj_f, x_span, dpdp_y0(i, j));
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l) ' END']);                    

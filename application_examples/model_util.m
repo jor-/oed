@@ -4,17 +4,16 @@ classdef model_util
 % MODEL_UTIL Methods:
 %   GET_FICTITIOUS_MEASUREMENT_RESULTS - returns fictitious measurement results according to the passed informations.
 %   GET_MODEL_OUTPUTS - returns model outputs for the passed measurement and model parameters.
-%	GET_RELATIVE_ERROR - returns the error and the total error between the passed parameters and the true parameters measured as the difference of the passed and true parameters divided by the true parameters.
-%	GET_MAX_RELATIVE_ERROR - returns the error and the total error between the passed parameters and the true parameters measured as the absolute difference of the passed and true parameters divided by the minimum of both.
-%   GET_FACTOR_ERROR - returns the error and the total error between the passed parameters and the true parameters measured as the logarithm of the passed parameters divided by the true parameters.
-%	GET_ERROR - returns the error and the total error between the passed parameters and the true parameters.
+%   GET_RELATIVE_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the difference of the passed and true parameters divided by the true parameters.
+%   GET_FACTOR_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the logarithm of the passed parameters divided by the true parameters.
+%   GET_ERROR returns the error and the total error between the passed parameters and the true parameters.
 %
 % see also MODEL
 %
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -58,7 +57,7 @@ classdef model_util
         % Output:
         %     ETA: the model output for the passed measurement points and
         %          model parameter added to a measurment error according to
-        %          the passed variances
+        %          the passed variancesmvnrnd
         %          format: a vector of length n where n is the number of 
         %                  measurements
         %
@@ -66,13 +65,7 @@ classdef model_util
         %
         
             out = model_util.get_model_outputs(model, p, t);
-            n = length(out);
-            eta = zeros(n, 1);
-
-            for i=1:n
-                eta(i) =  mvnrnd(out(i), var(i));
-            end
-
+            eta =  normrnd(out, var);
         end
         
         function out = get_model_outputs(model, p, t)
@@ -107,8 +100,7 @@ classdef model_util
                 out(i) = model.get_M(p, t(i));
             end
         end
-        
-        
+                
         function [err, total_err] = get_relative_error(p, p_true)  
         % GET_RELATIVE_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the difference of the passed and true parameters divided by the true parameters.
         %
@@ -137,34 +129,6 @@ classdef model_util
             [err, total_err] = model_util.get_error(p, p_true, error_function);
         end
         
-        function [err, total_err] = get_max_relative_error(p, p_true)
-        % GET_MAX_RELATIVE_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the absolute difference of the passed and true parameters divided by the minimum of both.
-        %
-        % Example:
-        %     [ERR, TOTAL_ERR] = MODEL_UTIL.GET_MAX_RELATIVE_ERROR(P, P_TRUE)
-        %
-        % Input:
-        %     P: a cell array of values which should be compared to P_TRUE
-        %        format: a cell array of length n with vectors of length m
-        %     P_TRUE: the  value to which the values of P should be
-        %             compared to
-        %             format: a vectors of length m
-        %
-        % Output:
-        %     ERR: the calculated errors,
-        %          ERR(i) = abs(P(i) - P_TRUE) ./ min(P(i), P_TRUE)
-        %          format: a n x m matrix
-        %     TOTAL_ERR: the sum of the absolute values of the errors
-        %          TOTAL_ERR(i) = abs(sum(ERR(i,:)))
-        %          format: a vector of length n
-        %
-        % see also get_relative_error, get_error
-        %
-        
-            error_function = @(x, x_true) ((max(x_true, x) - min(x_true, x)) ./ min(x_true, x));
-            [err, total_err] = model_util.get_error(p, p_true, error_function);
-        end
-        
         function [err, total_err] = get_factor_error(p, p_true)
         % GET_FACTOR_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the logarithm of the passed parameters divided by the true parameters.
         %
@@ -190,6 +154,34 @@ classdef model_util
         %
         
             error_function = @(x, x_true) (log10(x ./ x_true));
+            [err, total_err] = model_util.get_error(p, p_true, error_function);
+        end
+        
+        function [err, total_err] = get_max_relative_error(p, p_true)
+        % GET_MAX_RELATIVE_ERROR returns the error and the total error between the passed parameters and the true parameters measured as the absolute difference of the passed and true parameters divided by the minimum of both.
+        %
+        % Example:
+        %     [ERR, TOTAL_ERR] = MODEL_UTIL.GET_MAX_RELATIVE_ERROR(P, P_TRUE)
+        %
+        % Input:
+        %     P: a cell array of values which should be compared to P_TRUE
+        %        format: a cell array of length n with vectors of length m
+        %     P_TRUE: the  value to which the values of P should be
+        %             compared to
+        %             format: a vectors of length m
+        %
+        % Output:
+        %     ERR: the calculated errors,
+        %          ERR(i) = abs(P(i) - P_TRUE) ./ min(P(i), P_TRUE)
+        %          format: a n x m matrix
+        %     TOTAL_ERR: the sum of the absolute values of the errors
+        %          TOTAL_ERR(i) = abs(sum(ERR(i,:)))
+        %          format: a vector of length n
+        %
+        % see also get_relative_error, get_error
+        %
+        
+            error_function = @(x, x_true) ((max(x_true, x) - min(x_true, x)) ./ min(x_true, x));
             [err, total_err] = model_util.get_error(p, p_true, error_function);
         end
         
@@ -231,6 +223,52 @@ classdef model_util
                 
                 err(i, 1:m) = error_function(pi, p_true);
                 total_err(i) = sum(abs(err(i, 1:m)));
+            end
+        end
+        
+        function save_figure(figure_handle, file, width, hight)
+        % SAVE_FIGURE saves a figure to a file with the specified size.
+        %
+        % Example:
+        %     MODEL_UTIL.SAVE_FIGURE(FIGURE_HANDLE, FILE, WIDTH, HEIGHT)
+        %
+        % Input:
+        %     FIGURE_HANDLE: the figure that should be saved
+        %     FILE: the filename as string where the figure should be saved
+        %     WIDTH: the width in cm, in which the figure is to be saved
+        %     hight: the hight in cm, in which the figure is to be saved
+        %
+        
+            %% set size if neccesary
+            if nargin == 4
+                % set size
+                set(figure_handle, 'Units', 'Centimeters');
+                set(figure_handle, 'Position', [0, 0, width, hight]);
+
+                % set page size
+                 set(figure_handle, 'PaperPositionMode', 'Manual', 'PaperUnits', 'Centimeters', 'PaperSize', [width, hight], 'PaperPosition', [0 0 width, hight]);
+            end
+            
+            %% get file extension
+            file_splitted = regexp(file, '\.', 'split');
+            file_extension = file_splitted{length(file_splitted)};
+            
+            %% plot
+            switch file_extension
+                case 'fig'
+                    saveas(figure_handle, file, 'fig');
+                case 'eps'
+                    file_uncropped = '/tmp/matlabPlotUncropped.eps';
+                    saveas(figure_handle, file_uncropped, 'epsc');
+                    system(['eps2eps -dEPSCrop  ' file_uncropped ' ' file]);
+                    system(['rm ' file_uncropped]);
+                case 'pdf'
+                    file_uncropped = '/tmp/matlabPlotUncropped.pdf';
+                    saveas(figure_handle, file_uncropped, 'pdf');
+                    system(['pdfcrop ' file_uncropped ' ' file]);
+                    system(['rm ' file_uncropped]);
+                otherwise
+                    saveas(figure_handle, file);
             end
         end
     end

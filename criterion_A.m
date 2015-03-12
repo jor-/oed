@@ -4,7 +4,7 @@ classdef criterion_A < criterion
 % the covariance matrix C if n x n is the dimension of C.
 %
 % CRITERION_A Methods:
-%    GET_PHI - returns the quality of the covariance matrix C.	
+%    GET_PHI - returns the quality of the covariance matrix C.
 %    GET_DCD_PHI - returns the derivation in the direction D of the
 %                  quality of C.
 %    GET_DCD_DCD_PHI - returns the derivation with respect to C in the
@@ -19,7 +19,7 @@ classdef criterion_A < criterion
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 

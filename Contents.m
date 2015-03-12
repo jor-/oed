@@ -1,5 +1,5 @@
 % Optimal Experimental Design Toolbox
-% Version 0.7 06-May-2013 
+% Version 1.0.0 12-Mar-2015 
 %
 % Solver.
 % solver               - allows to calculate and optimize the quality of experimental designs and allows to calculate a parameter estimation resulting from accomplished measurements.
@@ -27,7 +27,7 @@
 
 %{
 ---------------------------------------------------------------------------
-    Author: Joscha Reimer, jor@informatik.uni-kiel.de, 2010-2013
+    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
