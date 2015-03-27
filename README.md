@@ -25,6 +25,17 @@ command.
 `doc optimal_experimental_design_toolbox`
 
 
+## References 
+
+Please have a look at the following article.
+
+Reimer, J., Schuerch, M., and Slawig, T.: Optimization of model parameters and experimental designs with the Optimal Experimental Design Toolbox (v1.0) exemplified by sedimentation in salt marshes, Geosci. Model Dev., 8, 791-804, doi:10.5194/gmd-8-791-2015, 2015.
+
+<http://dx.doi.org/10.5194/gmd-8-791-2015>
+
+Here, the use of the toolbox is illustrated by an application example. In addition, the mathematical background is explained.
+
+
 
 ## Copyright
 
@@ -45,3 +56,5 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with the Optimal Experimental Design Toolbox. If not, see
 <http://www.gnu.org/licenses/>.
+
+
