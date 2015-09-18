@@ -26,7 +26,7 @@
     
     <!-- Supply the following six elements in the order specified -->
     <!-- (Required) element; matlabrelease content is not currently used -->
-    <matlabrelease>2011b</matlabrelease>
+    <matlabrelease>2014a</matlabrelease>
     <!-- (Required) The name element appears in the Contents pane -->
     <name>Optimal Experimental Design</name>
     <!-- (Required) The type elementidentifies your package; pick one: -->
@@ -55,9 +55,9 @@
         </listitem>
 		<listitem>
             <!-- A menu item label for a opening a demo -->
-            <label>Demos</label>
+            <label>Demo (unidimensional)</label>
             <!-- A command to open a demo if any -->
-            <callback>web help/html/Demos.html</callback>
+            <callback>web help/html/demo_unidimensional.html</callback>
             <!-- The icon for this menu item -->
             <icon>$toolbox/matlab/icons/demoicon.gif</icon>
         </listitem>
