@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Demos</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-09-18"><meta name="DC.source" content="demo_unidimensional.m"><style type="text/css">
+      --><title>Scalar demo</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-09-18"><meta name="DC.source" content="demo_unidimensional.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Demos</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here with an example with one model parameter and one-dimensional measurements.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model and the solver object</a></li><li><a href="#2">Calculate optimal measurements</a></li><li><a href="#3">Calculate quality of measurements</a></li><li><a href="#4">Estimate model parameter from accomplished measurements</a></li><li><a href="#5">Calculate gain of additional measurements</a></li><li><a href="#6">Calculate optimal measurements with constraints</a></li></ul></div><h2>Create the model and the solver object<a name="1"></a></h2><pre class="codeinput">p = 1;                                      <span class="comment">% True parameter of the model</span>
+  </style></head><body><div class="content"><h1>Scalar demo</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here with an example with one model parameter and one-dimensional measurements.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model and the solver object</a></li><li><a href="#2">Calculate optimal measurements</a></li><li><a href="#3">Calculate quality of measurements</a></li><li><a href="#4">Estimate model parameter from accomplished measurements</a></li><li><a href="#5">Calculate gain of additional measurements</a></li><li><a href="#6">Calculate optimal measurements with constraints</a></li></ul></div><h2>Create the model and the solver object<a name="1"></a></h2><pre class="codeinput">p = 1;                                      <span class="comment">% True parameter of the model</span>
 p0 = (1 + rand()) * p                       <span class="comment">% Guessed parameter value</span>
 
 n = 5;                                      <span class="comment">% Number of different selectable measurements</span>
@@ -78,7 +78,7 @@ sol = solver(model, p0, t_var, v_var);      <span class="comment">% Create the s
 </pre><pre class="codeoutput">
 p0 =
 
-    1.6948
+    1.8147
 
 
 t_var =
@@ -123,7 +123,7 @@ w_opt =
 
 quality_opt =
 
-    0.0019
+    0.0017
 
 
 w_subopt =
@@ -137,7 +137,7 @@ w_subopt =
 
 quality_subopt =
 
-    0.0111
+    0.0097
 
 </pre><h2>Estimate model parameter from accomplished measurements<a name="4"></a></h2><pre class="codeinput">m = 5;                                                                          <span class="comment">% Number of accomplished measurements</span>
 t_fix = t_opt;                                                                  <span class="comment">% Accomplished measurements</span>
@@ -150,7 +150,7 @@ p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  
 </pre><pre class="codeoutput">
 p_opt =
 
-    0.9941
+    1.0005
 
 </pre><h2>Calculate gain of additional measurements<a name="5"></a></h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max)';         <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
@@ -159,7 +159,7 @@ quality_new = sol.get_quality(w_opt)           <span class="comment">% Calculate
 </pre><pre class="codeoutput">
 quality_old =
 
-    0.0056
+    0.0055
 
 
 quality_new =
@@ -196,7 +196,7 @@ t_opt =
 
 </pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-%% Demos
+%% Scalar demo
 % Different use cases of the <matlab:doc('optimal_experimental_design_toolbox')
 % |Optimal Experimental Design Toolbox|> are illustrated here with an example 
 % with one model parameter and one-dimensional measurements.
