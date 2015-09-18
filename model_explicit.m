@@ -65,8 +65,8 @@ classdef model_explicit < model
             this.p_sym = util.make_sym(p);
             this.t_sym = util.make_sym(t);
             
-            this.dp_f_sym = simplify(diff(this.f_sym, this.p_sym));
-            this.dpdp_f_sym = simplify(diff(this.dp_f_sym, this.p_sym));
+            this.dp_f_sym = simplify(jacobian(this.f_sym, this.p_sym));
+            this.dpdp_f_sym = simplify(jacobian(this.dp_f_sym, this.p_sym));
         end
         
         function M = get_M(this, p, t)        
