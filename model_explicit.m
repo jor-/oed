@@ -138,6 +138,15 @@ classdef model_explicit < model
         % Output:
         %     RESULT: the result of the substitution of P and T in F_SYM
         %
+                        
+            p = util.make_row_vector(p);
+            if not(all(size(p) == size(this.p_sym)))                
+                error(util.get_message_identifier('model_explicit', 'substitute', 'wrong_size'), ['The vector p must have size ', mat2str(size(this.p_sym)), ' but its size is ', mat2str(size(p)), '.']);
+            end
+            if not(all(size(t) == size(this.t_sym)))                
+                error(util.get_message_identifier('model_explicit', 'substitute', 'wrong_size'), ['The vector t must have size ', mat2str(size(this.t_sym)), ' but its size is ', mat2str(size(t)), '.']);
+            end
+            
             tmp_sym = subs(f_sym, this.p_sym, p);
             result = subs(tmp_sym, this.t_sym, t);
             result = double(result);

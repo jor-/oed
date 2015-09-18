@@ -245,6 +245,8 @@ classdef solver < handle
         %
         % see also SET_MODEL, SET_INITIAL_PARAMETER_ESTIMATION and SET_ACCOMPLISHED_MEASUREMENTS
         %
+            
+            % check lower and upper bounds
             if nargin < 2 || all(lb == -Inf)
                 lb = [];
             end
@@ -253,15 +255,30 @@ classdef solver < handle
                 ub = [];
             end
             
+            p0 = this.get_p0();
+            
+            if not(isempty(lb))
+                lb = util.make_column_vector(lb);
+                if not(all(size(p0) == size(lb)))
+                    error(this.get_message_identifier('get_optimal_parameters', 'wrong_lower_bound_size'), ['The size of the lower bound is ', mat2str(size(lb)), ' but is has to be ', mat2str(size(p0)), '.']);
+                end
+            end
+            if not(isempty(ub))
+                ub = util.make_column_vector(ub);
+                if not(all(size(p0) == size(ub)))
+                    error(this.get_message_identifier('get_optimal_parameters', 'wrong_upper_bound_size'), ['The size of the upper bound is ', mat2str(size(ub)), ' but is has to be ', mat2str(size(p0)), '.']);
+                end
+            end
+            
+            % return optimized parameters
             if not(isequal(this.p_lb, lb)) || not(isequal(this.p_ub, ub)) || isempty(this.p)
                 this.p_lb = lb;
                 this.p_ub = ub;
                 
-                p0 = this.get_p0();
                 eta = this.get_eta();
                 
                 if length(eta) < length(p0);
-                    error(this.get_message_identifier('get_optimal_parameters', 'not_enough_accomplished_measurements'), ['The number of accomplished measurements is not enough. You need at least ', length(p0), ' accomplished measurements, but you have only ', length(eta), '.']);
+                    error(this.get_message_identifier('get_optimal_parameters', 'not_enough_accomplished_measurements'), ['The number of accomplished measurements is not enough. You need at least ', int2str(length(p0)), ' accomplished measurements, but you have only ', int2str(length(eta)), '.']);
                 end
                     
                 model = this.get_model();
@@ -1870,6 +1887,10 @@ classdef solver < handle
         %
         
             w_var = util.make_column_vector(w_var);
+            
+            if not(all(size(w_var) == size(this.v_var)))
+                error(this.get_message_identifier('set_w_var', 'not_set'), ['The weights w_var must have size ', mat2str(size(this.v_var)), ' but the size is ', mat2str(size(w_var)), '.']);                
+            end
             
             w_var(w_var < 0 & w_var >= -eps) = 0;
             
