@@ -97,7 +97,7 @@ classdef model_util
             out = zeros(n, 1);
 
             for i=1:n
-                out(i) = model.get_M(p, t(i));
+                out(i) = model.get_M(p, t(i, :));
             end
         end
                 
