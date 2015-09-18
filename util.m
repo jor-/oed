@@ -55,7 +55,7 @@ classdef util
             if sizeV(2) > 1
                 if sizeV(1) > 1
                     display(v);
-                    error(get_message_identifier('util','make_row_vector', 'vector_expected'), 'vector expected, not a matrix');
+                    error(get_message_identifier('util', 'make_row_vector', 'vector_expected'), 'vector expected, not a matrix');
                 else
                     v = v.';
                 end
@@ -82,7 +82,7 @@ classdef util
             if sizeV(1) > 1
                 if sizeV(2) > 1
                     display(v);
-                    error(get_message_identifier('util','make_row_vector', 'vector_expected'), 'vector expected, not a matrix');
+                    error(get_message_identifier('util', 'make_row_vector', 'vector_expected'), 'vector expected, not a matrix');
                 else
                     v = v.';
                 end
@@ -107,11 +107,11 @@ classdef util
         %
         
             if ischar(f) || iscellstr(f)
-                    f_sym = sym(f);
+                f_sym = sym(f);
             elseif isa(f, 'sym')
                 f_sym = f;
             else
-                error(get_message_identifier('util','make_sym', 'wrong__input_type'), ['The input should be a string or a symbolic function. But it is a ' class(f)]);
+                error(get_message_identifier('util', 'make_sym', 'wrong__input_type'), ['The input should be a string or a symbolic function. But it is a ' class(f)]);
             end
         end
         
@@ -142,7 +142,7 @@ classdef util
                         Jacobian(:, i) = util.make_column_vector((F(x + h(i) * e) - F(x - h(i) * e)) / (2*h(i)));
                     end
                 otherwise
-                    error(get_message_identifier('util','approximate_Jacobian', 'order not implemented'), 'Methods are only implemented for order 1 and 2.');
+                    error(get_message_identifier('util', 'approximate_Jacobian', 'order not implemented'), 'Methods are only implemented for order 1 and 2.');
             end
         end
         
