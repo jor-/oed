@@ -1185,8 +1185,15 @@ classdef solver < handle
                 w = [ones(dim_fix, 1); w_var];                
                 dim_w = length(w);
                 VW = spdiags(w .* v.^(-1), 0, dim_w, dim_w);
-                C_inv = dp_Mt' * VW * dp_Mt;                
-                C = S * inv(C_inv) * S;
+                C_inv = dp_Mt' * VW * dp_Mt;
+                warning('off', 'MATLAB:singularMatrix');
+                C = inv(C_inv);
+                warning('on', 'MATLAB:singularMatrix');
+                if not(any(any(isinf(C))))
+                    C = S * C * S;
+                else
+                    C = ones(size(C)) * inf;
+                end
                 this.C = C;
             else
                 C = this.C;
