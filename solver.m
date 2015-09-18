@@ -471,7 +471,7 @@ classdef solver < handle
             end
             
             t_var = this.get_t_var();
-            t_opt = t_var(w_int);
+            t_opt = t_var(w_int, :);
         end                
         
         % ******************* GET_OPTIMAL_WEIGHTS ******************* %
