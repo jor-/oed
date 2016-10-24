@@ -15,7 +15,9 @@
 # Simulink Code Generation
 slprj/
 
+# Session info
+octave-workspace
+
 # Skip some own files
 application_examples/model_C_util.m
-help/*.m
 todo.txt
