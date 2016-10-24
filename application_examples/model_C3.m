@@ -19,7 +19,7 @@ classdef model_C3 < model_C2
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2015 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2016 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
