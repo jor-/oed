@@ -1006,7 +1006,7 @@ classdef solver < handle
                     if ~ isequal(this.options.use_parameter_estimation(), value)
                         event_id = 'event_p_changed';
                     end
-                case solver_options.get_solver_edo_options().scale_parameters_id
+                case solver_edo_options.scale_parameters_id
                     if ~ isequal(this.options.get_solver_edo_options().scale_parameters(), value)
                         event_id = 'event_v_changed';
                     end
