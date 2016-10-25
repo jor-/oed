@@ -601,7 +601,7 @@ classdef solver < handle
                         w = bitget(i, 1:dim_var)';
 
                         % check constraints
-                        if (check_not_ineq || A_ineq * w <= b_ineq) && (check_not_eq || A_eq * w == b_eq)
+                        if (check_not_ineq || all(A_ineq * w <= b_ineq)) && (check_not_eq || all(A_eq * w == b_eq))
                             try
                                 fw = objective_function(w);
                                 if isempty(w_opt) || fw < fw_opt
