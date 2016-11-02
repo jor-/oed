@@ -68,7 +68,7 @@ classdef model_ivp < model
     
     events (ListenAccess = protected, NotifyAccess = protected)
         event_p_changed;    %is triggered when p was changed
-        event_x_changed;    %is triggered when t was changed
+        event_x_changed;    %is triggered when x was changed
     end
     
     methods (Access = public)
@@ -110,8 +110,6 @@ classdef model_ivp < model
             this.y0_sym = y0_sym;
             this.x_span = x_span;
             
-            
-            % prepare dt_dp_y function
             for i=length(p_sym):-1:1
                 dp_y_sym(i) = sym(['d' char(p_sym(i)) '_y']);
             end
@@ -147,7 +145,7 @@ classdef model_ivp < model
             
             
             addlistener(this, 'event_p_changed', @(src, evnt_data) remove_calculations('p'));
-            addlistener(this, 'event_x_changed', @(src, evnt_data) remove_calculations('t'));
+            addlistener(this, 'event_x_changed', @(src, evnt_data) remove_calculations('x'));
             
             function remove_calculations(changed)
                 if strfind('p',  changed)
@@ -155,7 +153,7 @@ classdef model_ivp < model
                     this.dp_y = [];
                     this.dpdp_y = [];
                 end
-                if strfind('p t',  changed)
+                if strfind('p x',  changed)
                     this.yx = [];
                     this.dp_yx = [];
                     this.dpdp_yx = [];
@@ -301,7 +299,7 @@ classdef model_ivp < model
             function grad = eval_grad_cells(grad_cells, x)
                 m = length(grad_cells);
                 grad = zeros(m, 1);
-                for i=1:m
+                parfor i=1:m
                     grad(i) = grad_cells{i}(x);
                 end
                 %{
@@ -558,7 +556,7 @@ classdef model_ivp < model
             end 
         end
         
-        function set_x(this, t)
+        function set_x(this, x)
         % SET_X sets the dependent variable X.
         %
         % Example:
@@ -570,14 +568,14 @@ classdef model_ivp < model
         % see also GET_X
         %
         
-            t = util.make_column_vector(t);
-            if not(isequal(this.x, t))
-                this.x = t;
+            x = util.make_column_vector(x);
+            if not(isequal(this.x, x))
+                this.x = x;
                 notify(this, 'event_x_changed');
             end            
         end
         
-        function t = get_x(this)
+        function x = get_x(this)
         % GET_X returns the dependent variable X.
         %
         % Example:
@@ -592,7 +590,7 @@ classdef model_ivp < model
             if isempty(this.x)
                 error(this.get_message_identifier('get_x', 'x_not_set'), 'x is not set.');
             else
-                t = this.x;
+                x = this.x;
             end 
         end
          
