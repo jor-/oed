@@ -545,14 +545,14 @@ classdef model_C2 < model
         
         
         function ivp = get_ivp(this)
-        % GET_IVPDS returns the IVP_DERIVATION_SOLVER-object which provides the concentration C and its first and second derivation with respect to the parameters P.
+        % GET_IVP returns the IVP_DERIVATION_SOLVER-object which provides the concentration C and its first and second derivation with respect to the parameters P.
         %
         % Example:
-        %     IVPDS = MODEL_C2.GET_IVPDS()
+        %     IVP = MODEL_C2.GET_IVP()
         %
         % Output:
-        %     IVPDS: the IVP_DERIVATION_SOLVER-object which provides the concentration C 
-        %            and its first and second derivation with respect to the parameters P
+        %     IVP: the MODEL_IVP-object which provides the concentration C 
+        %          and its first and second derivation with respect to the parameters P
         %
         % E, A, B, X0, hHMW and hHW must be set before via the constructor,
         % the corresponding SET methods or the input.
