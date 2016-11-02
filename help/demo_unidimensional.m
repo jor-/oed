@@ -1,18 +1,24 @@
-%% Scalar demo
+%% Demo: explicit model (scalar model parameter, scalar measurement point)
 % Different use cases of the <matlab:doc('optimal_experimental_design_toolbox')
-% |Optimal Experimental Design Toolbox|> are illustrated here with an example 
-% with one model parameter and one-dimensional measurements.
+% |Optimal Experimental Design Toolbox|> are illustrated here. The applicaion
+% example is an explicit model with one model parameter and one-dimensional
+% measurement points.
 
 
-%% Create the model and the solver object
-p = 1;                                      % True parameter of the model
+%% Create the model object
+t = 't';                                    % The dependent variable
+p = 'p';                                    % The model parameter
+f = 'p * t';                                  % The model function
+model = model_explicit(f, p, t);            % Create the model object using model_explicit
+
+%% Create the solver object
+p = 1                                       % True parameter of the model
 p0 = (1 + rand()) * p                       % Guessed parameter value
 
 n = 5;                                      % Number of different selectable measurements
 t_var = (0:1/(n-1):1)'                      % Selectable measurements
 v_var = 10^-2 * ones(1, n)'                 % Variances of measurement results at these measurements
 
-model = model_explicit('p*t', 'p', 't');    % Create the model object
 sol = solver(model, p0, t_var, v_var);      % Create the solver object
 
 
@@ -53,3 +59,4 @@ quality_new = sol.get_quality(w_opt)           % Calculate quality resulting fro
 A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1)  % Matrix for the constraints of the measurements
 b = ones(n, 1)                                % Vector for the constraints of the measurements
 t_opt = sol.get_optimal_measurements(A, b)    % Calculate the optimal measurements of the selectable measurements considering the constraints
+
