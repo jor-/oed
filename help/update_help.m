@@ -25,8 +25,8 @@ publish('getting_started.m', 'showCode', false);
 publish('product_overview.m', 'showCode', false);
 publish('users_guide.m','evalCode', false);
 publish('function_overview.m', 'showCode', false);
-publish('demo_unidimensional.m');
-publish('demo_multidimensional.m');
+publish('demo_explicit_unidimensional.m');
+publish('demo_explicit_multidimensional.m');
 
 builddocsearchdb([pwd '/help/html']);
 

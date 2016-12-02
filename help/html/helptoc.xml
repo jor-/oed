@@ -44,24 +44,24 @@
         </tocitem>
 
 		<!-- Optional List of Examples, with hyperlinks to examples in other files -->
-        <tocitem target="demo_unidimensional.html" 
+        <tocitem target="demo_explicit_unidimensional.html" 
                  image="HelpIcon.DEMOS">Demo (scalar)
-            <tocitem target="demo_unidimensional.html#1">Model and solver objects</tocitem>
-			<tocitem target="demo_unidimensional.html#2">Optimal measurements</tocitem>
-			<tocitem target="demo_unidimensional.html#3">Quality of measurements</tocitem>
-			<tocitem target="demo_unidimensional.html#4">Estimate model parameters</tocitem>
-			<tocitem target="demo_unidimensional.html#5">Gain of additional measurements</tocitem>
-			<tocitem target="demo_unidimensional.html#6">Optimal measurements with constraints</tocitem>
+            <tocitem target="demo_explicit_unidimensional.html#1">Model and solver objects</tocitem>
+			<tocitem target="demo_explicit_unidimensional.html#2">Optimal measurements</tocitem>
+			<tocitem target="demo_explicit_unidimensional.html#3">Quality of measurements</tocitem>
+			<tocitem target="demo_explicit_unidimensional.html#4">Estimate model parameters</tocitem>
+			<tocitem target="demo_explicit_unidimensional.html#5">Gain of additional measurements</tocitem>
+			<tocitem target="demo_explicit_unidimensional.html#6">Optimal measurements with constraints</tocitem>
         </tocitem>
         
-        <tocitem target="demo_multidimensional.html" 
+        <tocitem target="demo_explicit_multidimensional.html" 
                  image="HelpIcon.DEMOS">Demo (multidimensional)
-            <tocitem target="demo_multidimensional.html#1">Model and solver objects</tocitem>
-			<tocitem target="demo_multidimensional.html#2">Optimal measurements</tocitem>
-			<tocitem target="demo_multidimensional.html#3">Quality of measurements</tocitem>
-			<tocitem target="demo_multidimensional.html#4">Estimate model parameters</tocitem>
-			<tocitem target="demo_multidimensional.html#5">Gain of additional measurements</tocitem>
-			<tocitem target="demo_multidimensional.html#6">Optimal measurements with constraints</tocitem>
+            <tocitem target="demo_explicit_multidimensional.html#1">Model and solver objects</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#2">Optimal measurements</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#3">Quality of measurements</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#4">Estimate model parameters</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#5">Gain of additional measurements</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#6">Optimal measurements with constraints</tocitem>
         </tocitem>
 
         <!-- Optional link or links to your or other Web sites -->
