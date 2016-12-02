@@ -59,8 +59,8 @@ quality_new = sol.get_quality(w_opt)           % Calculate quality resulting fro
 
 
 %% Calculate optimal measurements with constraints
-% We are constraining the choice of measurements in such a way that
-% different measurements should have different values in the x variable.
+% We are constraining the choice of measurements in such a way that different
+% measurements should have different values in the first independet variable (t).
 A_tmp = diag(ones(4, 1)) + diag(ones(3, 1), 1) + diag(ones(2, 1), 2) + diag(ones(1, 1), 3)      % Temporarily matrix for the constraints of the measurements
 A = blkdiag(A_tmp, A_tmp, A_tmp)            % Matrix for the constraints of the measurements
 b = ones(n, 1)                              % Vector for the constraints of the measurements
