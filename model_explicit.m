@@ -69,7 +69,7 @@ classdef model_explicit < model
             this.dpdp_f_sym = simplify(jacobian(this.dp_f_sym, this.p_sym));
         end
         
-        function M = get_M(this, p, t)
+        function M = get_M(this, p, x)
         % GET_M returns the result of the model function with model parameters P and experimental design X.
         %
         % Example:
@@ -83,7 +83,7 @@ classdef model_explicit < model
         %     M: the result of the model function with model parameters P and experimental design X
         %
         
-            M = this.substitute(this.f_sym, p, t);
+            M = this.substitute(this.f_sym, p, x);
         end
         
         function dp_M = get_dp_M(this, p, x)
