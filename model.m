@@ -2,12 +2,12 @@ classdef model < handle
 % MODEL represents an interface for a model.
 %
 % MODEL Methods:
-%    GET_M - returns the result of the model function with parameter P and
-%            experimental design T
+%    GET_M - returns the result of the model function with
+%            model parameters P and experimental design X.
 %    GET_DP_M - returns the first derivative of the model function with
-%               parameter P and experimental design T
+%               model parameters P and experimental design X.
 %    GET_DPDP_M - returns the second derivative of the model function with
-%                 parameter P and experimental design T
+%                 model parameters P and experimental design X.
 
 %{
 ---------------------------------------------------------------------------
@@ -36,46 +36,46 @@ classdef model < handle
     
     methods (Abstract)
         
-        M = get_M(this, p, t)
-        % GET_M returns the result of the model function with parameter P and experimental design T.
+        M = get_M(this, p, x)
+        % GET_M returns the result of the model function with model parameters P and experimental design X.
         %
         % Example:
-        %     M = MODEL_OBJECT.GET_M(P, T)
+        %     M = MODEL_OBJECT.GET_M(P, X)
         %
         % Input:
-        %     P: the parameter values
-        %     T: the experimental design values
+        %     P: the model parameter values
+        %     X: the experimental design values
         %
         % Output:
-        %     M: the result of the model function with parameter P and experimental design T
+        %     M: the result of the model function with model parameters P and experimental design X
         %
         
-        dp_M = get_dp_M(this, p, t)
-        % GET_DP_M returns the first derivative of the model function with parameter P and experimental design T.
+        dp_M = get_dp_M(this, p, x)
+        % GET_DP_M returns the first derivative of the model function with model parameters P and experimental design X.
         %
         % Example:
-        %     M = MODEL_OBJECT.GET_DP_M(P, T)
+        %     M = MODEL_OBJECT.GET_DP_M(P, X)
         %
         % Input:
-        %     P: the parameter values
-        %     T: the experimental design values
+        %     P: the model parameter values
+        %     X: the experimental design values
         %
         % Output:
-        %     M: the first derivative of the model function with parameter P and experimental design T
+        %     M: the first derivative of the model function with model parameters P and experimental design X
         %
         
-        dpdp_M = get_dpdp_M(this, p, t)
-        % GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
+        dpdp_M = get_dpdp_M(this, p, x)
+        % GET_DPDP_M returns the second derivative of the model function with model parameters P and experimental design X.
         %
         % Example:
-        %     M = MODEL_OBJECT.GET_DPDP_M(P, T)
+        %     M = MODEL_OBJECT.GET_DPDP_M(P, X)
         %
         % Input:
-        %     P: the parameter values
-        %     T: the experimental design values
+        %     P: the model parameter values
+        %     X: the experimental design values
         %
         % Output:
-        %     M: the second derivative of the model function with parameter P and experimental design T
+        %     M: the second derivative of the model function with model parameters P and experimental design X
         %
         
     end

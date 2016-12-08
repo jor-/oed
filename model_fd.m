@@ -2,12 +2,12 @@ classdef model_fd < model
 % MODEL_FD implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
 %
 % MODEL_FD Methods:
-%    GET_M - returns the result of the model function with parameter P and
-%            experimental design T
+%    GET_M - returns the result of the model function with
+%            model parameters P and experimental design X.
 %    GET_DP_M - returns the first derivative of the model function with
-%               parameter P and experimental design T
+%               model parameters P and experimental design X.
 %    GET_DPDP_M - returns the second derivative of the model function with
-%                 parameter P and experimental design T
+%                 model parameters P and experimental design X.
 %
 % see also MODEL
 %
@@ -34,62 +34,62 @@ classdef model_fd < model
 ---------------------------------------------------------------------------
 %}
 
-    properties (Access = private)
+    properties (Access = protected)
         p = [];
-        t = [];
+        x = [];
         dp_M = [];
         dpdp_M = [];
     end
         
     methods (Access = public)
         
-        function dp_M = get_dp_M(this, p, t)
-        % GET_DP_M returns the first derivative of the model function with parameter P and experimental design T.
+        function dp_M = get_dp_M(this, p, x)
+        % GET_DP_M returns the first derivative of the model function with model parameters P and experimental design X.
         %
         % Example:
-        %     M = MODEL_FD_OBJECT.GET_DP_M(P, T)
+        %     M = MODEL_OBJECT.GET_DP_M(P, X)
         %
         % Input:
-        %     P: the parameter values
-        %     T: the experimental design values
+        %     P: the model parameter values
+        %     X: the experimental design values
         %
         % Output:
-        %     M: the first derivative of the model function with parameter P and experimental design T
+        %     M: the first derivative of the model function with model parameters P and experimental design X
         %
         
-             if ~ isequal(this.p, p) || ~ isequal(this.t, t) || isempty(this.dp_M)
-                dp_M = util.approximate_Jacobian(@(p) (this.get_M(p, t)), p);
+             if ~ isequal(this.p, p) || ~ isequal(this.x, x) || isempty(this.dp_M)
+                dp_M = util.approximate_Jacobian(@(p) (this.get_M(p, x)), p);
                                 
                 this.dp_M = dp_M;
                 this.p = p;
-                this.t = t;
+                this.x = x;
             else
                 dp_M = this.dp_M;
             end           
         end
         
-        function dpdp_M = get_dpdp_M(this, p, t)
-        % GET_DP_M returns the second derivative of the model function with parameter P and experimental design T.
+        function dpdp_M = get_dpdp_M(this, p, x)
+        % GET_DPDP_M returns the second derivative of the model function with model parameters P and experimental design X.
         %
         % Example:
-        %     M = MODEL_FD_OBJECT.GET_DPDP_M(P, T)
+        %     M = MODEL_OBJECT.GET_DPDP_M(P, X)
         %
         % Input:
-        %     P: the parameter values
-        %     T: the experimental design values
+        %     P: the model parameter values
+        %     X: the experimental design values
         %
         % Output:
-        %     M: the second derivative of the model function with parameter P and experimental design T
+        %     M: the second derivative of the model function with model parameters P and experimental design X
         %
          
-            if ~ isequal(this.p, p) || ~ isequal(this.t, t) || isempty(this.dpdp_M)
-                dp_M = this.get_dp_M(p, t);
-                dpdp_M = util.approximate_Hessian(@(p) (this.get_M(p, t)), p, dp_M);
+            if ~ isequal(this.p, p) || ~ isequal(this.x, x) || isempty(this.dpdp_M)
+                dp_M = this.get_dp_M(p, x);
+                dpdp_M = util.approximate_Hessian(@(p) (this.get_M(p, x)), p, dp_M);
                 
                 this.dp_M = dp_M;
                 this.dpdp_M = dpdp_M;
                 this.p = p;
-                this.t = t;
+                this.x = x;
             else
                 dpdp_M = this.dpdp_M;
             end
