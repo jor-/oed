@@ -65,6 +65,7 @@ classdef model_ivp < model
         dpdp_y_p_x;
         dpdp_y_p_x_t;
         
+        ode_solver_name;
         debug;
     end
     
@@ -76,7 +77,7 @@ classdef model_ivp < model
     
     methods (Access = public)
         
-        function this = model_ivp(f, p, y, y0, t, t_interval, x)
+        function this = model_ivp(f, p, y, y0, t, t_interval, x, ode_solver_name)
         % MODEL_IVP creates an MODEL_IVP object.
         %
         % Example:
@@ -117,6 +118,10 @@ classdef model_ivp < model
             else
                 x_sym = [];
             end
+            if nargin < 8
+                ode_solver_name = 'ode45';
+            end
+            this.ode_solver_name = ode_solver_name;
             
             % store input
             this.f_sym = f_sym;
@@ -337,13 +342,13 @@ classdef model_ivp < model
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n)]);
                     
                     dpi_f_p_x = @(t, dp_y) (double(subs(subs(dp_f_p_x_sym(i), [t_sym, y_sym, dp_y_sym(i)], [t, y_p_x(t), dp_y]))));
-                    dp_y_cell{i} = this.solve_ODE(dpi_f_p_x, t_interval, dp_y0_p_x(i));
+                    dp_y_p_x_cell{i} = this.solve_ODE(dpi_f_p_x, t_interval, dp_y0_p_x(i));
                     
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n) ' END']);
                 end
                 
                 % make callable solution
-                dp_y_p_x = @(t) eval_grad_cells(dp_y_cell, t);
+                dp_y_p_x = @(t) eval_grad_cells(dp_y_p_x_cell, t);
        
                 % save result
                 this.dp_y_p_x = dp_y_p_x;
@@ -465,13 +470,13 @@ classdef model_ivp < model
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l)]);  
                     
                     dpidpj_f_p_x = @(t, dpdp_y) (double(subs(subs(dpdp_f_p_x_sym(i, j), [t_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [t, y_p_x(t), dp_y_p_x(t).', dpdp_y]))));
-                    dpdp_y_cell{k} = this.solve_ODE(dpidpj_f_p_x, t_interval, dpdp_y0_p_x(i, j));
+                    dpdp_y_p_x_cell{k} = this.solve_ODE(dpidpj_f_p_x, t_interval, dpdp_y0_p_x(i, j));
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l) ' END']);                    
                 end
                 
                 % make callable solution
-                dpdp_y_p_x = @(t) eval_hesse_cells(dpdp_y_cell, t);
+                dpdp_y_p_x = @(t) eval_hesse_cells(dpdp_y_p_x_cell, t);
        
                 % save result
                 this.dpdp_y_p_x = dpdp_y_p_x;
@@ -553,6 +558,7 @@ classdef model_ivp < model
         %     Y_SOL: a handle to the solution function of the initial value problem.
         %
         
+            % prepare default options if not passed
             if nargin < 5
                 opt = odeset('RelTol', 10^-3, 'AbsTol', 10^-6);
                 if this.use_debug(1)
@@ -560,12 +566,19 @@ classdef model_ivp < model
                 end
             end
             
-            msg_id =  'MATLAB:ode23s:IntegrationTolNotMet';
+            % chose solver
+            ode_solver_name = this.ode_solver_name;
+            ode_solver = str2func(ode_solver_name);
+            
+            % make tolerance not met warning catchable
+            msg_id =  ['MATLAB:' ode_solver_name ':IntegrationTolNotMet'];
             warning('error', msg_id);
+            
+            % solve ode (and increase tolerance if unmetable)
             solved = false;
             while ~solved
                 try
-                    y_sol = ode23s(f, t_interval, y0, opt);
+                    y_sol = ode_solver(f, t_interval, y0, opt);
                     solved = true;
                 catch err
                    if (strcmp(err.identifier, msg_id))
@@ -578,7 +591,11 @@ classdef model_ivp < model
                    end
                 end
             end
+            
+            % make tolerance not met warning uncatchable
             warning('on', msg_id);
+            
+            % return result
             y_sol = @(t) deval(y_sol, t);
         end
         
@@ -663,16 +680,25 @@ classdef model_ivp < model
             x_sym = this.get_x_sym();
             x_sym_len = length(x_sym);
 
-            if x_and_maybe_t_len == x_sym_len
-                x = x_and_maybe_t;
+            % check length
+            if x_and_maybe_t_len < x_sym_len || x_and_maybe_t_len > x_sym_len + 1
+                error(this.get_message_identifier('set_x_and_maybe_t', 'wrong_dimension'), 'The length of set_x_and_maybe_t must be the length of x_sym or the length of x_sym + 1.');
+            end
+            
+            % set x
+            if x_sym_len > 0
+                if x_and_maybe_t_len == x_sym_len
+                    x = x_and_maybe_t;
+                else
+                    x = x_and_maybe_t(1 : x_sym_len);
+                end
                 this.set_x(x);
-            elseif x_and_maybe_t_len == x_sym_len + 1
-                x = x_and_maybe_t(1 : x_sym_len);
-                this.set_x(x);
+            end
+            
+            % set t
+            if x_and_maybe_t_len == x_sym_len + 1
                 t = x_and_maybe_t(x_sym_len + 1);
                 this.set_t(t);
-            else
-                error(this.get_message_identifier('set_x_and_maybe_t', 'wrong_dimension'), 'The length of set_x_and_maybe_t must be the length of x_sym or the length of x_sym + 1.');
             end
         end
         
@@ -713,7 +739,7 @@ classdef model_ivp < model
         % see also SET_X
         %
         
-            if isempty(this.x)
+            if ~ isempty(this.get_x_sym) && isempty(this.x)
                 error(this.get_message_identifier('get_x', 'not_set'), 'x is not set.');
             else
                 x = this.x;

@@ -568,7 +568,7 @@ classdef model_C2 < model
                 t_span = this.get_t_span();
                 y0_sym = this.get_C0_sym;
                 
-                ivp = model_ivp(f_sym, p_sym, C_sym, y0_sym, t_sym, t_span);
+                ivp = model_ivp(f_sym, p_sym, C_sym, y0_sym, t_sym, t_span, 'ode23s');
                 ivp.set_debug(this.get_debug());
                 
                 this.ivp = ivp;
