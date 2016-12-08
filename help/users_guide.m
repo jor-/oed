@@ -16,11 +16,26 @@
 model_object = model_class();
 
 %%
-% If the model function is given in an explicit form you can use the
-% <matlab:doc('model_explicit') |model_explicit|> class. The necessary
+% If the model function is given in an explicit symbolic form you can use
+% the <matlab:doc('model_explicit') |model_explicit|> class. The necessary
 % function values and derivatives will then be calculated automatically.
 
 model_object = model_explicit(model_function, parameter_variables, experimental_design_variables);
+
+%%
+% If the model function is given in a matlab function you can use the
+% <matlab:doc('model_fd') |model_fd|> class. The necessary derivatives
+% will then be calculated automatically by finite differences.
+
+model_object = model_fd(model_function);
+
+%%
+% If the model function is a composition of models you can use the
+% <matlab:doc('model_composed') |model_composed|> class. The values of the
+% model and its derivatives are then calculated automatically.
+
+model_object = model_composed(model_function, parameter_variables, experimental_design_variables, inner_model_variable, inner_model_object);
+
 %%
 % If the model function is given as an initial value problem you can use
 % the <matlab:doc('model_ivp') |model_ivp|> class. There only the initial
