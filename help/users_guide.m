@@ -28,7 +28,7 @@ model_object = model_explicit(model_function, parameter_variables, experimental_
 % derivatives will then be calculated automatically.
 
 model_object = model_ivp(differential_equation, parameter_variables, ...
-    independent_variable, initial_value, dependent_variable, integration_interval);
+    dependent_variable, initial_value, integration_variable, integration_interval, independent_variables);
 
 %%
 % If you are using the <matlab:doc('model_ivp') |model_ivp|> class you can
@@ -36,7 +36,7 @@ model_object = model_ivp(differential_equation, parameter_variables, ...
 % in parallel. To achieve that you only have to open a |matlabpool| before
 % the calulations. 
 
-matlabpool open number_of_cores
+parpool(number_of_cores)
 
 %%
 % If you have an arbitrary implementation of the model function without the
