@@ -37,82 +37,105 @@ classdef model_ivp < model
 ---------------------------------------------------------------------------
 %} 
     
-    properties (Access = private)
-        x_sym;
+    properties (Access = protected)
         p_sym;
+        x_sym;
+        t_sym;
         
-        x_span;
         p;
         x;
+        t;
+        t_interval;
         
-        y_sym;
         f_sym;
+        y_sym;
         y0_sym;
-        y;
-        yx;
+        y_p_x;
+        y_p_x_t;
         
-        dp_y_sym;
         dp_f_sym;
+        dp_y_sym;
         dp_y0_sym;    
-        dp_y;
-        dp_yx;
+        dp_y_p_x;
+        dp_y_p_x_t;
         
-        dpdp_y_sym;
         dpdp_f_sym;
+        dpdp_y_sym;
         dpdp_y0_sym;
-        dpdp_y;
-        dpdp_yx;
+        dpdp_y_p_x;
+        dpdp_y_p_x_t;
         
         debug;
     end
     
     events (ListenAccess = protected, NotifyAccess = protected)
         event_p_changed;    %is triggered when p was changed
+        event_t_changed;    %is triggered when t was changed
         event_x_changed;    %is triggered when x was changed
     end
     
     methods (Access = public)
         
-        function this = model_ivp(f, p, y, y0, x, x_span)
+        function this = model_ivp(f, p, y, y0, t, t_interval, x)
         % MODEL_IVP creates an MODEL_IVP object.
         %
         % Example:
-        %     OBJ = MODEL_IVP(F, P, Y, Y0, X, X_SPAN)
+        %     OBJ = MODEL_IVP(F, P, Y, Y0, T, T_INTERVAL, X)
         %
         % Input:
-        %     F: the formula f of the derivative of y with respect to x as
-        %        string or symbolic formula. f can depend on x, y and p.
-        %        It holds (dy/dx)(x,p) = f(x,y,p). 
+        %     F: the formula f of the derivative of y with respect to t as
+        %        string or symbolic formula. f can depend on t, x, y and p.
+        %        It holds (dy/dt)(t,x,p) = f(y,t,x,p).
         %     P: the variables of the parameters p as a cell array of
         %        strings or as symbolic vector
-        %     Y: the independent variable y as string or symbolic variable
-        %     Y0: the value of y at x0 as string or symbolic variable.
-        %         Y0_SYM can depend on the parameters p. It holds y(x0,p) = y0(p).
-        %     X: the dependent variable x as string or symbolic variable
-        %     X_SPAN: a vector specifying the interval of integration, X_SPAN = [x0, xf]. 
-        %             The solver imposes the initial conditions at x0, and
-        %             integrates from x0 to xf.
+        %     Y: the dependent variable y as string or symbolic variable
+        %     Y_0: the value of y at t_0 as string or symbolic variable.
+        %          Y_0_SYM can depend on x and the parameters p. It holds
+        %          y(t_0,x,p) = y_0(x,p).
+        %     T: the independent variable t of the ordinary differential 
+        %        equation as string or symbolic variable
+        %     T_INTERVAL: a vector specifying the interval of integration,
+        %             T_INTERVAL = [t_0, t_f]. The solver imposes the initial
+        %             conditions at t0 and integrates from t_0 to t_f.
+        %     X: the independent variables x (without t) as a cell array of 
+        %        strings or as symbolic vector
+        %        (optional: not needed if T is the only independent variable)
         %
         % Output:
         %     OBJ: a MODEL_IVP object with the passed configurations
         %
         
-            x_sym = util.make_sym(x);
-            y_sym = util.make_sym(y);
+            % convert input
+            f_sym = simplify(util.make_sym(f));
             p_sym = util.make_column_vector(util.make_sym(p));
-            f_sym = util.make_sym(f);
+            y_sym = util.make_sym(y);
             y0_sym = util.make_sym(y0);
-            x_span = util.make_column_vector(x_span);
-            this.x_sym = x_sym;
-            this.y_sym = y_sym;
-            this.p_sym = p_sym;
-            this.f_sym = f_sym;
-            this.y0_sym = y0_sym;
-            this.x_span = x_span;
-            
-            for i=length(p_sym):-1:1
-                dp_y_sym(i) = sym(['d' char(p_sym(i)) '_y']);
+            t_sym = util.make_sym(t);
+            t_interval = util.make_column_vector(t_interval);
+            if nargin >= 7
+                x_sym = util.make_column_vector(util.make_sym(x));
+            else
+                x_sym = [];
             end
+            
+            % store input
+            this.f_sym = f_sym;
+            this.p_sym = p_sym;
+            this.y_sym = y_sym;
+            this.y0_sym = y0_sym;
+            this.t_sym = t_sym;
+            this.t_interval = t_interval;
+            this.x_sym = x_sym;
+            
+            this.set_debug(0);
+            
+            % derivation function
+            function dx_f = d(f, x)
+                dx_f = simplify(jacobian(f, x));
+            end
+            
+            n = length(p_sym);
+            dp_y_sym = sym(['dp_' char(y_sym)], [1, n]);
             this.dp_y_sym = dp_y_sym;
             
             dp_f_sym = d(f_sym, y_sym) * dp_y_sym + d(f_sym, p_sym);
@@ -121,13 +144,7 @@ classdef model_ivp < model
             dp_y0_sym = d(y0_sym, p_sym);
             this.dp_y0_sym = dp_y0_sym;
             
-            
-            % prepare dt_dp_dp_y function
-            for i=length(p_sym):-1:1
-                for j=length(p_sym):-1:1
-                    dpdp_y_sym(i,j) = sym(['d' char(p_sym(i)) 'd' char(p_sym(j)) '_y']);
-                end
-            end
+            dpdp_y_sym = sym(['dpdp_' char(y_sym)], [n, n]);
             this.dpdp_y_sym = dpdp_y_sym;
             
             dpdp_f_sym = d(dp_f_sym, dp_y_sym) * dpdp_y_sym + d(dp_f_sym, y_sym) * dp_y_sym + d(dp_f_sym, p_sym);
@@ -137,249 +154,301 @@ classdef model_ivp < model
             dpdp_y0_sym = d(dp_y0_sym, p_sym);
             this.dpdp_y0_sym = dpdp_y0_sym;
             
-            this.set_debug(0);
-            
-            function dx_f = d(f, x)
-                dx_f = simplify(jacobian(f, x));
-            end
-            
-            
+            % add remove listeners
             addlistener(this, 'event_p_changed', @(src, evnt_data) remove_calculations('p'));
+            addlistener(this, 'event_t_changed', @(src, evnt_data) remove_calculations('t'));
             addlistener(this, 'event_x_changed', @(src, evnt_data) remove_calculations('x'));
             
             function remove_calculations(changed)
-                if strfind('p',  changed)
-                    this.y = [];
-                    this.dp_y = [];
-                    this.dpdp_y = [];
-                end
                 if strfind('p x',  changed)
-                    this.yx = [];
-                    this.dp_yx = [];
-                    this.dpdp_yx = [];
+                    this.y_p_x = [];
+                    this.dp_y_p_x = [];
+                    this.dpdp_y_p_x = [];
+                end
+                if strfind('p x t',  changed)
+                    this.y_p_x_t = [];
+                    this.dp_y_p_x_t = [];
+                    this.dpdp_y_p_x_t = [];
                 end
             end
         end
         
         
-        function M = get_M(this, p, x)
-        % GET_M returns the solution of the initial value problem with parameter P.
+        function M = get_M(this, p, x_and_maybe_t)
+        % GET_M returns the solution of the initial value problem with model
+        % parameters P and the independent variables X and T.
         %
         % Example:
-        %     M = MODEL_IVP_OBJECT.GET_M(P, X)
+        %     M = MODEL_IVP_OBJECT.GET_M(P, X_AND_MAYBE_T)
         %
         % Input:
         %     P: the parameters
-        %     X: the dependent variable (optional)
+        %     X_AND_MAYBE_T: the current values for the independent variables X
+        %         as a vector or the current values for the independent 
+        %         variables X and T as one vector where the value of T is the
+        %         last value
         %
         % Output:
-        %     M: if X is passed: the solution of the initial value
+        %     M: if T is passed: the solution of the initial value
         %        problem for the passed parameters P and the passed
-        %        dependent variable X
-        %        if X is not passed: a handle to the solution function of
-        %        the initial value problem for the passed parameters P
+        %        independent variables X and T
+        %        if T is not passed: a handle to the solution function of
+        %        the initial value problem for the passed parameters P and the
+        %        passed independent variables X
         %
         
+            % set input
             if nargin >= 2
-                this.set_p(p);    
+                this.set_p(p);
             end
             if nargin >= 3
-                this.set_x(x);
+                this.set_x_and_maybe_t(x_and_maybe_t);
             end
-                        
-            if isempty(this.y)
-                this.show_debug('calculating y');                    
+            
+            % solve initial value problem     
+            if isempty(this.y_p_x)
+                this.show_debug('calculating y');
                 this.show_debug('   solving ODE 1 of 1');
             
+                % get ode
                 f_sym = this.get_f_sym();
+                
+                % substitude values for p
                 p_sym = this.get_p_sym();
                 p = this.get_p();
-                x_sym = this.get_x_sym();            
+                f_p_sym= simplify(subs(f_sym, p_sym, p));
+                
+                % substitude values for x
+                x_sym = this.get_x_sym();
+                x = this.get_x();
+                f_p_x_sym = simplify(subs(f_p_sym, x_sym, x));
+                
+                % prepare ode function
+                t_sym = this.get_t_sym();
                 y_sym = this.get_y_sym();
+                f_p_x = @(t, y) (double(subs(subs(f_p_x_sym, [t_sym, y_sym], [t, y]))));
+                
+                % substitude values for p and x in y0
                 y0_sym = this.get_y0_sym();
-                x_span = this.get_x_span(); 
+                y0_p_sym = subs(y0_sym, p_sym, p);
+                y0_p_x_sym = subs(y0_p_sym, x_sym, x);
+                y0_p_x = double(y0_p_x_sym);
                 
-                f_tmp = simplify(subs(f_sym, p_sym, p));
-                f = @(x, y) (double(subs(subs(f_tmp, [x_sym, y_sym], [x, y]))));
-                               
-                y0 = double(subs(y0_sym, p_sym, p));
+                % solve ivp
+                t_interval = this.get_t_interval();
+                y_p_x = this.solve_ODE(f_p_x, t_interval, y0_p_x);
                 
-                y = this.solve_ODE(f, x_span, y0);
-                
-                this.y = y;
+                % save result
+                this.y_p_x = y_p_x;
                 
                 this.show_debug('   solving ODE 1 of 1 END');                    
                 this.show_debug('calculating y END');
             else
-                y = this.y;
+                y_p_x = this.y_p_x;
             end
                         
-            
-            if nargin >= 3
-                x = this.get_x();
-                
-                if isempty(this.yx)
-                    yx = y(x);
-                    this.yx = yx;
+            % apply t if passed
+            if nargin >= 3 && length(x_and_maybe_t) > length(this.x_sym)
+                if isempty(this.y_p_x_t)
+                    t = this.get_t();
+                    y_p_x_t = y_p_x(t);
+                    this.y_p_x_t = y_p_x_t;
                 else
-                    yx = this.yx;
+                    y_p_x_t = this.y_p_x_t;
                 end
-                M = yx;
+                M = y_p_x_t;
             else
-                M = y;
+                M = y_p_x;
             end
             
         end
         
-        function dp_M = get_dp_M(this, p, x)
-        % GET_DP_M returns the first derivative with respect to the parameters P of the solution of the initial value problem.
+        function dp_M = get_dp_M(this, p, x_and_maybe_t)
+        % GET_M returns the first derivative with respect to the parameters P of
+        % the solution of the initial value problem with model parameters P and
+        % the independent variables X and T.
         %
         % Example:
-        %     DP_M = MODEL_IVP_OBJECT.GET_DP_M(P, X)
+        %     DP_M = MODEL_IVP_OBJECT.GET_DP_M(P, X_AND_MAYBE_T)
         %
         % Input:
         %     P: the parameters
-        %     X: the dependent variable (optional)
+        %     X_AND_MAYBE_T: the current values for the independent variables X
+        %         as a vector or the current values for the independent 
+        %         variables X and T as one vector where the value of T is the
+        %         last value
         %
         % Output:
-        %     DP_M: if X is passed: the first derivative with respect to the
+        %     DP_M: if T is passed: the first derivative with respect to the
         %           parameters of the solution of the initial value
         %           problem for the passed parameters P and the passed
-        %           dependent variable X
+        %           independent variables X and T
         %           if X is not passed: a handle to the first derivative with
         %           respect to the parameters P of the solution function of
-        %           the initial value problem for the passed parameters P
+        %           the initial value problem for the passed parameters P and
+        %           the passed independent variables X
         %
         
+            % set input
             if nargin >= 2
                 this.set_p(p);    
             end
             if nargin >= 3
-                this.set_x(x);
+                this.set_x_and_maybe_t(x_and_maybe_t);
             end
-                       
-            if isempty(this.dp_y)
+            
+            % calculate output
+            if isempty(this.dp_y_p_x)
                 this.show_debug('calculating dp_y');
                 
+                % get ode
                 dp_f_sym = this.get_dp_f_sym();
-                dp_y0_sym = this.get_dp_y0_sym();
+                
+                % substitude values for p
                 p_sym = this.get_p_sym();
                 p = this.get_p();
+                dp_f_p_sym= simplify(subs(dp_f_sym, p_sym, p));
                 
-                dp_f_tmp = simplify(subs(dp_f_sym, p_sym, p));
-                dp_y0 = double(subs(dp_y0_sym, p_sym, p));
+                % substitude values for x
+                x_sym = this.get_x_sym();
+                x = this.get_x();
+                dp_f_p_x_sym = simplify(subs(dp_f_p_sym, x_sym, x));
                 
-                x_sym = this.get_x_sym();            
+                % substitude values for p and x in dp_y0
+                dp_y0_sym = this.get_dp_y0_sym();
+                dp_y0_p_sym = subs(dp_y0_sym, p_sym, p);
+                dp_y0_p_x_sym = subs(dp_y0_p_sym, x_sym, x);
+                dp_y0_p_x = double(dp_y0_p_x_sym);
+
+                % solve ivp
+                y_p_x = this.get_M();
+
+                % prepare to solve derivative ivps
+                t_sym = this.get_t_sym();
                 y_sym = this.get_y_sym();
-                dp_y_sym = this.get_dp_y_sym();           
-                x_span = this.get_x_span();
-                y = this.get_M(p);
+                dp_y_sym = this.get_dp_y_sym();
+                t_interval = this.get_t_interval();
                 
                 n = length(p);
-                dp_y_cell = cell(n, 1);
+                dp_y_p_x_cell = cell(n, 1);
                 
+                % solve derivative ivps in parallel
                 parfor i=1:n
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n)]);
                     
-                    dpi_f = @(x, dp_y) (double(subs(subs(dp_f_tmp(i), [x_sym, y_sym, dp_y_sym(i)], [x, y(x), dp_y]))));
-                    dp_y_cell{i} = this.solve_ODE(dpi_f, x_span, dp_y0(i));
+                    dpi_f_p_x = @(t, dp_y) (double(subs(subs(dp_f_p_x_sym(i), [t_sym, y_sym, dp_y_sym(i)], [t, y_p_x(t), dp_y]))));
+                    dp_y_cell{i} = this.solve_ODE(dpi_f_p_x, t_interval, dp_y0_p_x(i));
                     
                     this.show_debug(['   solving ODE ' num2str(i) ' of ' num2str(n) ' END']);
                 end
                 
-                dp_y = @(t) eval_grad_cells(dp_y_cell, t);
-                this.dp_y = dp_y;                
+                % make callable solution
+                dp_y_p_x = @(t) eval_grad_cells(dp_y_cell, t);
+       
+                % save result
+                this.dp_y_p_x = dp_y_p_x;
                 
                 this.show_debug('calculating dp_y END');
             else
-                dp_y = this.dp_y;
+                dp_y_p_x = this.dp_y_p_x;
             end
             
-            
-            function grad = eval_grad_cells(grad_cells, x)
+            function grad = eval_grad_cells(grad_cells, t)
                 m = length(grad_cells);
                 grad = zeros(m, 1);
                 parfor i=1:m
-                    grad(i) = grad_cells{i}(x);
+                    grad(i) = grad_cells{i}(t);
                 end
-                %{
-                    n = length(t);
-                    m = length(grad_cells);
-                    grad = zeros(n, m);
-                    for i=1:m
-                        grad(:, i) = grad_cells{i}(t).';
-                    end
-                %}
             end
-            
-            
-            if nargin >= 3
-                x = this.get_x();
-                
-                if isempty(this.dp_yx)
-                    dp_yx = dp_y(x);
-                    this.dp_yx = dp_yx;
+
+            % apply t if passed
+            if nargin >= 3 && length(x_and_maybe_t) > length(this.x_sym)
+                if isempty(this.dp_y_p_x_t)
+                    t = this.get_t();
+                    dp_y_p_x_t = dp_y_p_x(t);
+                    this.dp_y_p_x_t = dp_y_p_x_t;
                 else
-                    dp_yx = this.dp_yx;
+                    dp_y_p_x_t = this.dp_y_p_x_t;
                 end
-                dp_M = dp_yx;
+                dp_M = dp_y_p_x_t;
             else
-                dp_M = dp_y;
+                dp_M = dp_y_p_x;
             end
             
         end
         
-        function dpdp_M = get_dpdp_M(this, p, x)
-        % GET_DPDP_M returns the second derivative with respect to the parameters P of the solution of the initial value problem.
+        function dpdp_M = get_dpdp_M(this, p, x_and_maybe_t)
+        % GET_M returns the second derivative with respect to the parameters P of
+        % the solution of the initial value problem with model parameters P and
+        % the independent variables X and T.
         %
         % Example:
-        %     DPDP_M = MODEL_IVP_OBJECT.GET_DPDP_M(P, X)
+        %     DPDP_M = MODEL_IVP_OBJECT.GET_DP_M(P, X_AND_MAYBE_T)
         %
         % Input:
         %     P: the parameters
-        %     X: the dependent variable (optional)
+        %     X_AND_MAYBE_T: the current values for the independent variables X
+        %         as a vector or the current values for the independent 
+        %         variables X and T as one vector where the value of T is the
+        %         last value
         %
         % Output:
-        %     DPDP_M: if X is passed: the second derivative with respect to
-        %             the parameters of the solution of the initial value
-        %             problem for the passed parameters P and the passed
-        %             dependent variable X
-        %             if X is not passed: a handle to the second derivative
-        %             with respect to the parameters P of the solution 
-        %             function of the initial value problem for the passed
-        %             parameters P
+        %     DPDP_M: if T is passed: the second derivative with respect to the
+        %           parameters of the solution of the initial value
+        %           problem for the passed parameters P and the passed
+        %           independent variables X and T
+        %           if X is not passed: a handle to the second derivative with
+        %           respect to the parameters P of the solution function of
+        %           the initial value problem for the passed parameters P and
+        %           the passed independent variables X
         %
         
+            % set input
             if nargin >= 2
                 this.set_p(p);    
             end
             if nargin >= 3
-                this.set_x(x);
+                this.set_x_and_maybe_t(x_and_maybe_t);
             end
             
-            if isempty(this.dpdp_y)
-                this.show_debug('calculating dp_dp_y');                
+            % calculate output
+            if isempty(this.dpdp_y_p_x)
+                this.show_debug('calculating dp_dp_y');
                 
+                % get ode
                 dpdp_f_sym = this.get_dpdp_f_sym();
-                dpdp_y0_sym = this.get_dpdp_y0_sym();
+                
+                % substitude values for p
                 p_sym = this.get_p_sym();
                 p = this.get_p();
-                                
-                dpdp_f_tmp = simplify(subs(dpdp_f_sym, p_sym, p));
-                dpdp_y0 = double(subs(dpdp_y0_sym, p_sym, p));
+                dpdp_f_p_sym= simplify(subs(dpdp_f_sym, p_sym, p));
                 
-                x_sym = this.get_x_sym();            
-                y_sym = this.get_y_sym();   
-                dp_y_sym = this.get_dp_y_sym();   
-                dpdp_y_sym = this.get_dpdp_y_sym();   
-                x_span = this.get_x_span();
+                % substitude values for x
+                x_sym = this.get_x_sym();
+                x = this.get_x();
+                dpdp_f_p_x_sym = simplify(subs(dpdp_f_p_sym, x_sym, x));
                 
-                y = this.get_M(p);
-                dp_y = this.get_dp_M(p);
-                                
+                % substitude values for p and x in dpdp_y0
+                dpdp_y0_sym = this.get_dpdp_y0_sym();
+                dpdp_y0_p_sym = subs(dpdp_y0_sym, p_sym, p);
+                dpdp_y0_p_x_sym = subs(dpdp_y0_p_sym, x_sym, x);
+                dpdp_y0_p_x = double(dpdp_y0_p_x_sym);
+
+                % solve ivp
+                y_p_x = this.get_M();
+                dp_y_p_x = this.get_dp_M();
+
+                % prepare to solve derivative ivps
+                t_sym = this.get_t_sym();
+                y_sym = this.get_y_sym();
+                dp_y_sym = this.get_dp_y_sym();
+                dpdp_y_sym = this.get_dpdp_y_sym();
+                t_interval = this.get_t_interval();
+                
+                % prepare cell array and indices
                 n = length(p);
                 l = n*(n+1)/2;
-                dpdp_y_cell = cell(l, 1);
+                dpdp_y_p_x_cell = cell(l, 1);
                 
                 indices = zeros(l, 2);
                 for k = 1:l
@@ -388,59 +457,61 @@ classdef model_ivp < model
                     indices(k, 2) = j;
                 end
                 
+                % solve derivative derivative ivps in parallel
                 parfor k = 1:l
                     i = indices(k, 1);
                     j = indices(k, 2);
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l)]);  
                     
-                    dpidpj_f = @(x, dpdp_y) (double(subs(subs(dpdp_f_tmp(i, j), [x_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [x, y(x), dp_y(x).', dpdp_y]))));
-                    dpdp_y_cell{k} = this.solve_ODE(dpidpj_f, x_span, dpdp_y0(i, j));
+                    dpidpj_f_p_x = @(t, dpdp_y) (double(subs(subs(dpdp_f_p_x_sym(i, j), [t_sym, y_sym, dp_y_sym, dpdp_y_sym(i, j)], [t, y_p_x(t), dp_y_p_x(t).', dpdp_y]))));
+                    dpdp_y_cell{k} = this.solve_ODE(dpidpj_f_p_x, t_interval, dpdp_y0_p_x(i, j));
                     
                     this.show_debug(['   solving ODE ' num2str(k) ' of ' num2str(l) ' END']);                    
                 end
                 
-                dpdp_y = @(x) eval_hesse_cells(dpdp_y_cell, x);
-                this.dpdp_y = dpdp_y;
+                % make callable solution
+                dpdp_y_p_x = @(t) eval_hesse_cells(dpdp_y_cell, t);
+       
+                % save result
+                this.dpdp_y_p_x = dpdp_y_p_x;
                 
                 this.show_debug('calculating dp_dp_y END');
             else
-                dpdp_y = this.dpdp_y;
+                dpdp_y_p_x = this.dpdp_y_p_x;
             end
-            
             
             function [i, j] = index_1d_to_2d(k)
                 i = ceil(((1+8*k)^(1/2) - 1) / 2);
                 j = k - (i-1) * i / 2;
             end
             
-            function hesse = eval_hesse_cells(hesse_cells, x)
+            function hesse = eval_hesse_cells(hesse_cells, t)
                 l = length(hesse_cells);
                 n = index_1d_to_2d(l);
                 hesse = zeros(n, n);
 
                 for k=1:l
                     [i,j] = index_1d_to_2d(k);
-                    hesse(i,j) = hesse_cells{k}(x);
+                    hesse(i,j) = hesse_cells{k}(t);
                     hesse(j,i) = hesse(i,j);
                 end
             end
-            
-            
-            if nargin >= 3
-                x = this.get_x();
-                
-                if isempty(this.dpdp_yx)
-                    dpdp_yx = dpdp_y(x);
-                    this.dpdp_yx = dpdp_yx;
+
+            % apply t if passed
+            if nargin >= 3 && length(x_and_maybe_t) > length(this.x_sym)
+                if isempty(this.dpdp_y_p_x_t)
+                    t = this.get_t();
+                    dpdp_y_p_x_t = dpdp_y_p_x(t);
+                    this.dpdp_y_p_x_t = dpdp_y_p_x_t;
                 else
-                    dpdp_yx = this.dpdp_yx;
+                    dpdp_y_p_x_t = this.dpdp_y_p_x_t;
                 end
-                dpdp_M = dpdp_yx;
+                dpdp_M = dpdp_y_p_x_t;
             else
-                dpdp_M = dpdp_y;
+                dpdp_M = dpdp_y_p_x;
             end
-            
+
         end
         
         
@@ -463,16 +534,16 @@ classdef model_ivp < model
     
     methods (Access = protected)
         
-        function y_sol = solve_ODE(this, f, x_span, y0, opt)
+        function y_sol = solve_ODE(this, f, t_interval, y0, opt)
         % SOLVE_ODE solves an initial value problem.
         %
         % Example:
-        %     Y_SOL = MODEL_IVP.SOLVE_ODE(F, X_SPAN, Y0)
+        %     Y_SOL = MODEL_IVP.SOLVE_ODE(F, T_interval, Y0)
         %
         % Input:
         %     F: a handle to the function for the derivative of Y with respect to X. F can
         %        depend on X and Y. In other words it holds (dy/dx)(x) = f(x,y).
-        %     X_SPAN: a vector specifying the interval of integration, X_SPAN = [X0, Xf]. 
+        %     T_interval: a vector specifying the interval of integration, T_interval = [X0, Xf]. 
         %             The solver imposes the initial conditions at X0, and
         %             integrates from X0 to Xf.
         %     Y0: the initial value of Y at X0. In other words it holds
@@ -494,7 +565,7 @@ classdef model_ivp < model
             solved = false;
             while ~solved
                 try
-                    y_sol = ode23s(f, x_span, y0, opt);
+                    y_sol = ode23s(f, t_interval, y0, opt);
                     solved = true;
                 catch err
                    if (strcmp(err.identifier, msg_id))
@@ -513,13 +584,13 @@ classdef model_ivp < model
         
         
         function set_p(this, p)
-        % SET_P sets the parameters P.
+        % SET_P sets the model parameters P.
         %
         % Example:
         %     MODEL_IVP.SET_P(P)
         %
         % Input:
-        %     P: the parameters P
+        %     P: the model parameters P
         %
         % see also GET_P
         %
@@ -528,7 +599,7 @@ classdef model_ivp < model
             p_sym = this.get_p_sym();
             
             if not(isequal(size(p), size(p_sym)))
-                error(this.get_message_identifier('set_p', 'wrong_dimension'), 'The dimensions of p and p_sym don''t match.');
+                error(this.get_message_identifier('set_p', 'wrong_dimension'), 'The dimensions of p and p_sym must be the same.');
             end
             
             if not(isequal(this.p, p))
@@ -538,13 +609,13 @@ classdef model_ivp < model
         end
         
         function p = get_p(this)
-        % GET_P returns the parameters P.
+        % GET_P returns the model parameters P.
         %
         % Example:
         %     P = MODEL_IVP.GET_P()
         %
         % Output:
-        %     P: the parameters P
+        %     P: the model parameters P
         %
         % see also SET_P
         %
@@ -555,20 +626,75 @@ classdef model_ivp < model
                 p = this.p;
             end 
         end
+         
+        function p_sym = get_p_sym(this)
+        % GET_P_SYM returns the symbolic variables representing the model
+        % parameters P as a vector.
+        %
+        % Example:
+        %     P_SYM = MODEL_IVP.GET_P_SYM()
+        %
+        % Output:
+        %     P_SYM: the symbolic variables representing the model parameters P
+        %
+        
+            p_sym = this.p_sym;
+        end
+        
+        
+        function set_x_and_maybe_t(this, x_and_maybe_t)
+        % SET_X_AND_MAYBE_T sets the current values for the independent variables
+        % X and T.
+        %
+        % Example:
+        %     MODEL_IVP.SET_X_AND_MAYBE_T(X_AND_MAYBE_T)
+        %
+        % Input:
+        %     X_AND_MAYBE_T: the current values for the independent variables X
+        %         as a vector or the current values for the independent 
+        %         variables X and T as one vector where the value of T is the
+        %         last value
+        %
+        % see also GET_X, GET_T
+        %
+            x_and_maybe_t = util.make_column_vector(x_and_maybe_t);
+            x_and_maybe_t_len = length(x_and_maybe_t);
+
+            x_sym = this.get_x_sym();
+            x_sym_len = length(x_sym);
+
+            if x_and_maybe_t_len == x_sym_len
+                x = x_and_maybe_t;
+                this.set_x(x);
+            elseif x_and_maybe_t_len == x_sym_len + 1
+                x = x_and_maybe_t(1 : x_sym_len);
+                this.set_x(x);
+                t = x_and_maybe_t(x_sym_len + 1);
+                this.set_t(t);
+            else
+                error(this.get_message_identifier('set_x_and_maybe_t', 'wrong_dimension'), 'The length of set_x_and_maybe_t must be the length of x_sym or the length of x_sym + 1.');
+            end
+        end
+        
         
         function set_x(this, x)
-        % SET_X sets the dependent variable X.
+        % SET_X sets the current values for the independent variables X.
         %
         % Example:
         %     MODEL_IVP.SET_X(X)
         %
         % Input:
-        %     X: the dependent variable X
+        %     X: the current values for the independent variables X
         %
         % see also GET_X
         %
-        
             x = util.make_column_vector(x);
+            x_sym = this.get_x_sym();
+            
+            if not(isequal(size(x), size(x_sym)))
+                error(this.get_message_identifier('set_x', 'wrong_dimension'), 'The dimensions of x and x_sym must be the same.');
+            end
+            
             if not(isequal(this.x, x))
                 this.x = x;
                 notify(this, 'event_x_changed');
@@ -576,63 +702,112 @@ classdef model_ivp < model
         end
         
         function x = get_x(this)
-        % GET_X returns the dependent variable X.
+        % GET_X returns the current values for the independent variables X.
         %
         % Example:
         %     X = MODEL_IVP.GET_X()
         %
         % Output:
-        %     X: the dependent variable X
+        %     X: the current values for the independent variables X
         %
         % see also SET_X
         %
         
             if isempty(this.x)
-                error(this.get_message_identifier('get_x', 'x_not_set'), 'x is not set.');
+                error(this.get_message_identifier('get_x', 'not_set'), 'x is not set.');
             else
                 x = this.x;
             end 
         end
-         
         
         function x_sym = get_x_sym(this)
-        % GET_X_SYM returns the dependent symbolic variable X.
+        % GET_X_SYM returns the symbolic variables representing the independent
+        % model variables X as a vector.
         %
         % Example:
         %     X_SYM = MODEL_IVP.GET_X_SYM()
         %
         % Output:
-        %     X_SYM: the dependent symbolic variable X
+        %     X_SYM: the symbolic variables representing the independent model
+        %            variables X
         %
         
             x_sym = this.x_sym;
-        end        
-                
-        function y_sym = get_y_sym(this)
-        % GET_Y_SYM returns the independent symbolic variable Y.
+        end  
+        
+        
+        function set_t(this, t)
+        % SET_T sets the current values for the independent variable T.
         %
         % Example:
-        %     Y_SYM = MODEL_IVP.GET_Y_SYM()
+        %     MODEL_IVP.SET_T(T)
         %
-        % Output:
-        %     Y_SYM: the independent symbolic variable Y
+        % Input:
+        %     T: the current values for the independent variable T
         %
-        
-            y_sym = this.y_sym;
+        % see also GET_T
+        %
+
+            if not(isscalar(t))
+                error(this.get_message_identifier('set_t', 'wrong_dimension'), 'T has to be a scalar.');
+            end
+            
+            if not(isequal(this.t, t))
+                this.t = t;
+                notify(this, 'event_t_changed');
+            end            
         end
         
-        function p_sym = get_p_sym(this)
-        % GET_P_SYM returns the parameters P as symbolic vector.
+        function t = get_t(this)
+        % GET_T returns the current values for the independent variable T.
         %
         % Example:
-        %     P_SYM = MODEL_IVP.GET_P_SYM()
+        %     T = MODEL_IVP.GET_T()
         %
         % Output:
-        %     P_SYM: the parameters P as symbolic vector
+        %     T: the current values for the independent variable T
+        %
+        % see also SET_T
         %
         
-            p_sym = this.p_sym;
+            if isempty(this.t)
+                error(this.get_message_identifier('get_t', 'not_set'), 'T is not set.');
+            else
+                t = this.t;
+            end 
         end
+        
+        function t_sym = get_t_sym(this)
+        % GET_T_SYM returns the symbolic variables representing the independent
+        % model variables T of the ordinary differential 
+        %
+        % Example:
+        %     T_SYM = MODEL_IVP.GET_T_SYM()
+        %
+        % Output:
+        %     T_SYM: the symbolic variables representing the independent model
+        %            variables T
+        %
+        
+            t_sym = this.t_sym;
+        end  
+        
+        
+        function t_interval = get_t_interval(this)
+        % GET_T_interval returns a vector specifying the interval of integration.
+        %
+        % Example:
+        %     T_interval = MODEL_IVP.GET_T_interval()
+        %
+        % Output:
+        %     T_interval: a vector specifying the interval of integration, T_interval = [X0, Xf]. 
+        %             The solver imposes the initial conditions at X0, and
+        %             integrates from X0 to Xf.
+        %
+        
+            t_interval = this.t_interval;
+        end
+        
                 
         function f_sym = get_f_sym(this)
         % GET_F_SYM returns the symbolic formula for the derivative of Y with respect to X.
@@ -649,19 +824,18 @@ classdef model_ivp < model
             f_sym = this.f_sym;
         end
         
-        function x_span = get_x_span(this)
-        % GET_X_SPAN returns a vector specifying the interval of integration.
+        function y_sym = get_y_sym(this)
+        % GET_Y_SYM returns the symbolic variable representing the dependent
+        % model variable Y.
         %
         % Example:
-        %     X_SPAN = MODEL_IVP.GET_X_SPAN()
+        %     Y_SYM = MODEL_IVP.GET_Y_SYM()
         %
         % Output:
-        %     X_SPAN: a vector specifying the interval of integration, X_SPAN = [X0, Xf]. 
-        %             The solver imposes the initial conditions at X0, and
-        %             integrates from X0 to Xf.
+        %     Y_SYM: the dependent symbolic variable Y
         %
         
-            x_span = this.x_span;
+            y_sym = this.y_sym;
         end
         
         function y0_sym = get_y0_sym(this)
@@ -680,20 +854,6 @@ classdef model_ivp < model
         end        
         
         
-        function dp_y_sym = get_dp_y_sym(this)
-        % GET_DP_Y_SYM returns the derivative of Y with respect to the parameters P as symbolic variable.
-        %
-        % Example:
-        %     DP_Y_SYM = MODEL_IVP.GET_DP_Y_SYM()
-        %
-        % Output:
-        %     DP_Y_SYM: the derivative of Y with respect to the parameters P
-        %               as symbolic variable
-        %
-        
-            dp_y_sym = this.dp_y_sym;
-        end
-        
         function dp_f_sym = get_dp_f_sym(this)
         % GET_DP_F_SYM returns the symbolic formula for the derivative of Y with respect to X and P.
         %
@@ -707,6 +867,20 @@ classdef model_ivp < model
         %
         
             dp_f_sym = this.dp_f_sym;
+        end
+        
+        function dp_y_sym = get_dp_y_sym(this)
+        % GET_DP_Y_SYM returns the derivative of Y with respect to the parameters P as symbolic variable.
+        %
+        % Example:
+        %     DP_Y_SYM = MODEL_IVP.GET_DP_Y_SYM()
+        %
+        % Output:
+        %     DP_Y_SYM: the derivative of Y with respect to the parameters P
+        %               as symbolic variable
+        %
+        
+            dp_y_sym = this.dp_y_sym;
         end
         
         function dp_y0_sym = get_dp_y0_sym(this)
@@ -726,20 +900,6 @@ classdef model_ivp < model
         end
         
         
-        function dpdp_y_sym = get_dpdp_y_sym(this)
-        % GET_DPDP_Y_SYM returns the second derivative of Y with respect to the parameters P as symbolic variable.
-        %
-        % Example:
-        %     DPDP_Y_SYM = MODEL_IVP.GET_DPDP_Y_SYM()
-        %
-        % Output:
-        %     DPDP_Y_SYM: the second derivative of Y with respect to the parameters P
-        %                 as symbolic variable
-        %
-        
-            dpdp_y_sym = this.dpdp_y_sym;
-        end
-        
         function dpdp_f_sym = get_dpdp_f_sym(this)
         % GET_DPDP_F_SYM returns the symbolic formula for the derivative of Y with respect to once X and twice P.
         %
@@ -754,6 +914,20 @@ classdef model_ivp < model
         %
         
             dpdp_f_sym = this.dpdp_f_sym;
+        end
+        
+        function dpdp_y_sym = get_dpdp_y_sym(this)
+        % GET_DPDP_Y_SYM returns the second derivative of Y with respect to the parameters P as symbolic variable.
+        %
+        % Example:
+        %     DPDP_Y_SYM = MODEL_IVP.GET_DPDP_Y_SYM()
+        %
+        % Output:
+        %     DPDP_Y_SYM: the second derivative of Y with respect to the parameters P
+        %                 as symbolic variable
+        %
+        
+            dpdp_y_sym = this.dpdp_y_sym;
         end
         
         function dpdp_y0_sym = get_dpdp_y0_sym(this)
