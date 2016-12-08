@@ -1180,20 +1180,16 @@ classdef solver < handle
         
             if isempty(this.C)
                 dp_Mt = this.get_dp_Mt(model, p, t);
+                dp_Mt_scaled = dp_Mt * inv(S);
                 
                 dim_fix = length(t) - length(w_var);
                 w = [ones(dim_fix, 1); w_var];                
                 dim_w = length(w);
                 VW = spdiags(w .* v.^(-1), 0, dim_w, dim_w);
-                C_inv = dp_Mt' * VW * dp_Mt;
+                C_inv = dp_Mt_scaled' * VW * dp_Mt_scaled;
                 warning('off', 'MATLAB:singularMatrix');
                 C = inv(C_inv);
                 warning('on', 'MATLAB:singularMatrix');
-                if not(any(any(isinf(C))))
-                    C = S * C * S;
-                else
-                    C = ones(size(C)) * inf;
-                end
                 this.C = C;
             else
                 C = this.C;
