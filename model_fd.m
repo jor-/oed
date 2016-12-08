@@ -35,6 +35,8 @@ classdef model_fd < model
 %}
 
     properties (Access = protected)
+        f = [];
+        
         p = [];
         x = [];
         dp_M = [];
@@ -42,6 +44,40 @@ classdef model_fd < model
     end
         
     methods (Access = public)
+        
+        function this = model_fd(f)
+        % MODEL_FD creates a MODEL_FD object.
+        %
+        % Example:
+        %     OBJ = MODEL_FD(F)
+        %
+        % Input:
+        %     F: the function to vcalculate the model output
+        %
+        % Output:
+        %     OBJ: a MODEL_FD object with the passed configurations
+        %
+        
+            this.f = f;
+        end
+        
+        
+        function M = get_M(this, p, x)
+        % GET_M returns the result of the model function with model parameters P and experimental design X.
+        %
+        % Example:
+        %     M = MODEL_OBJECT.GET_M(P, X)
+        %
+        % Input:
+        %     P: the model parameter values
+        %     X: the experimental design values
+        %
+        % Output:
+        %     M: the result of the model function with model parameters P and experimental design X
+        %
+        
+            M = this.f(p, x);
+        end
         
         function dp_M = get_dp_M(this, p, x)
         % GET_DP_M returns the first derivative of the model function with model parameters P and experimental design X.
