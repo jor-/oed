@@ -64,6 +64,16 @@
 			<tocitem target="demo_explicit_multidimensional.html#6">Optimal measurements with constraints</tocitem>
         </tocitem>
         
+        <tocitem target="demo_ivp_simple.html" 
+                 image="HelpIcon.DEMOS">Demo (inital value problem)
+            <tocitem target="demo_explicit_multidimensional.html#1">Model and solver objects</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#2">Optimal measurements</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#3">Quality of measurements</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#4">Estimate model parameters</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#5">Gain of additional measurements</tocitem>
+			<tocitem target="demo_explicit_multidimensional.html#6">Optimal measurements with constraints</tocitem>
+        </tocitem>
+        
         <tocitem target="demo_general_model_with_fd.html" 
                  image="HelpIcon.DEMOS">Demo (general model with finite differences)
         </tocitem>

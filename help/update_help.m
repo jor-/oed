@@ -27,6 +27,7 @@ publish('users_guide.m','evalCode', false);
 publish('function_overview.m', 'showCode', false);
 publish('demo_explicit_unidimensional.m');
 publish('demo_explicit_multidimensional.m');
+publish('demo_ivp_simple.m');
 publish('demo_general_model.m', 'evalCode', false);
 publish('demo_general_model_with_fd.m', 'evalCode', false);
 
