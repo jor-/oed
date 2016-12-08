@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Demo: explicit model, multidimensional model parameter vector, multidimensional measurement points</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-04"><meta name="DC.source" content="demo_explicit_multidimensional.m"><style type="text/css">
+      --><title>Demo: explicit model, multidimensional model parameter vector, multidimensional measurement points</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-07"><meta name="DC.source" content="demo_explicit_multidimensional.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,13 +66,14 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Demo: explicit model, multidimensional model parameter vector, multidimensional measurement points</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here. This application example is an explicit model with multidimensional model parameter vector and multidimensional measurement points.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model object</a></li><li><a href="#2">Create the solver object</a></li><li><a href="#3">Calculate optimal measurements</a></li><li><a href="#4">Calculate quality of measurements</a></li><li><a href="#5">Estimate model parameters from accomplished measurements</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2 id="1">Create the model object</h2><pre class="codeinput">x = {<span class="string">'t'</span>, <span class="string">'s'</span>};                                     <span class="comment">% The independent variables</span>
-p = {<span class="string">'a'</span>, <span class="string">'b'</span>};                                     <span class="comment">% The model parameters</span>
-f = <span class="string">'a*t^2 + b*s'</span>;                                  <span class="comment">% The model function</span>
+  </style></head><body><div class="content"><h1>Demo: explicit model, multidimensional model parameter vector, multidimensional measurement points</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here. This application example is an explicit model with multidimensional model parameter vector and multidimensional measurement points.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model object</a></li><li><a href="#2">Create the solver object</a></li><li><a href="#3">Calculate optimal measurements</a></li><li><a href="#4">Calculate quality of measurements</a></li><li><a href="#5">Estimate model parameters from accomplished measurements</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2 id="1">Create the model object</h2><pre class="codeinput">t = sym(<span class="string">'t'</span>);                                       <span class="comment">% Create symbolic variable for model</span>
+s = sym(<span class="string">'s'</span>);                                       <span class="comment">% Create symbolic variable for model</span>
+a = sym(<span class="string">'a'</span>);                                       <span class="comment">% Create symbolic variable for model</span>
+b = sym(<span class="string">'b'</span>);                                       <span class="comment">% Create symbolic variable for model</span>
+x = [t, s];                                         <span class="comment">% The independent variables</span>
+p = [a, b];                                         <span class="comment">% The model parameters</span>
+f = a*t^2 + b*s;                                    <span class="comment">% The model function</span>
 model = model_explicit(f, p, x);                    <span class="comment">% Create the model object using model_explicit</span>
-</pre><pre class="codeoutput">Warning: Support of character vectors that are not valid variable names or
-define a number will be removed in a future release. To create symbolic
-expressions, first create symbolic variables and then use operations on them. 
 </pre><h2 id="2">Create the solver object</h2><pre class="codeinput">p = [0; 1]                                          <span class="comment">% True parameters of the model</span>
 p0 = p + rand(size(p)) - 0.5                        <span class="comment">% Guessed parameter values</span>
 
@@ -95,8 +96,8 @@ p =
 
 p0 =
 
-   -0.0146
-    1.3003
+    0.1324
+    0.5975
 
 
 x_var =
@@ -164,7 +165,7 @@ w_opt =
 
 quality_opt =
 
-   12.3073
+    0.1635
 
 
 w_subopt =
@@ -198,8 +199,8 @@ p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  
 </pre><pre class="codeoutput">
 p_opt =
 
-    0.0067
-    1.0006
+    0.0194
+    1.0010
 
 </pre><h2 id="6">Calculate gain of additional measurements</h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max);          <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
@@ -208,12 +209,12 @@ quality_new = sol.get_quality(w_opt)           <span class="comment">% Calculate
 </pre><pre class="codeoutput">
 quality_old =
 
-   58.1631
+    6.9695
 
 
 quality_new =
 
-   28.0972
+    3.3681
 
 </pre><h2 id="7">Calculate optimal measurements with constraints</h2><p>We are constraining the choice of measurements in such a way that different measurements should have different values in the first independet variable (t).</p><pre class="codeinput">A_tmp = diag(ones(4, 1)) + diag(ones(3, 1), 1) + diag(ones(2, 1), 2) + diag(ones(1, 1), 3)      <span class="comment">% Temporarily matrix for the constraints of the measurements</span>
 A = blkdiag(A_tmp, A_tmp, A_tmp)            <span class="comment">% Matrix for the constraints of the measurements</span>
@@ -276,9 +277,13 @@ x_opt =
 
 
 %% Create the model object
-x = {'t', 's'};                                     % The independent variables
-p = {'a', 'b'};                                     % The model parameters
-f = 'a*t^2 + b*s';                                  % The model function
+t = sym('t');                                       % Create symbolic variable for model
+s = sym('s');                                       % Create symbolic variable for model
+a = sym('a');                                       % Create symbolic variable for model
+b = sym('b');                                       % Create symbolic variable for model
+x = [t, s];                                         % The independent variables
+p = [a, b];                                         % The model parameters
+f = a*t^2 + b*s;                                    % The model function
 model = model_explicit(f, p, x);                    % Create the model object using model_explicit
 
 %% Create the solver object

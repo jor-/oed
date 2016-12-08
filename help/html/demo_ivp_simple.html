@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Demo: explicit model, scalar model parameter, scalar measurement point</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-07"><meta name="DC.source" content="demo_explicit_unidimensional.m"><style type="text/css">
+      --><title>Demo: inital value problem model (multidimensional model parameter vector, scalar measurement points)</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-07"><meta name="DC.source" content="demo_ivp_simple.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,36 +66,42 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Demo: explicit model, scalar model parameter, scalar measurement point</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here. This application example is an explicit model with one model parameter and one-dimensional measurement points.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model object</a></li><li><a href="#2">Create the solver object</a></li><li><a href="#3">Calculate optimal measurements</a></li><li><a href="#4">Calculate quality of measurements</a></li><li><a href="#5">Estimate model parameter from accomplished measurements</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2 id="1">Create the model object</h2><pre class="codeinput">x = sym(<span class="string">'x'</span>);                               <span class="comment">% The independent variable</span>
-p = sym(<span class="string">'p'</span>);                               <span class="comment">% The model parameter</span>
-f = p * x;                                  <span class="comment">% The model function</span>
-model = model_explicit(f, p, x);            <span class="comment">% Create the model object using model_explicit</span>
-</pre><h2 id="2">Create the solver object</h2><pre class="codeinput">p = 1                                       <span class="comment">% True parameter of the model</span>
-p0 = (1 + rand()) * p                       <span class="comment">% Guessed parameter value</span>
+  </style></head><body><div class="content"><h1>Demo: inital value problem model (multidimensional model parameter vector, scalar measurement points)</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here. The applicaion example is an inital value problem as model with multidimensional model parameter vector and multidimensional measurements.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model object</a></li><li><a href="#2">Create the solver object</a></li><li><a href="#3">Calculate optimal measurements</a></li><li><a href="#4">Calculate quality of measurements</a></li><li><a href="#5">Estimate model parameter from accomplished measurements</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2 id="1">Create the model object</h2><pre class="codeinput">t = sym(<span class="string">'t'</span>);                                   <span class="comment">% The independent variable</span>
+y = sym(<span class="string">'y'</span>);                                   <span class="comment">% The dependent variable</span>
+a = sym(<span class="string">'a'</span>);                                   <span class="comment">% A model parameter</span>
+y0 = sym(<span class="string">'y0'</span>);                                 <span class="comment">% The inital value as another model parameter (this could also be a fix scalar value)</span>
+p = [a; y0];                                    <span class="comment">% All model parameters as a vector</span>
+f = y + a * t;                                  <span class="comment">% The differential equation of the inital value problem</span>
+t_interval = [0; 10];                           <span class="comment">% The first value is the initial (time) point (y(t_span(1)) = y0), the second value is an upper bound up to where the model is maximally evaluated</span>
+model = model_ivp(f, p, y, y0, t, t_interval);  <span class="comment">% Create the model object using model_ivp</span>
+</pre><h2 id="2">Create the solver object</h2><pre class="codeinput">p = [2; 1]                                  <span class="comment">% True parameters of the model</span>
+p0 = p + rand(size(p)) - 0.5                <span class="comment">% Guessed parameter values</span>
 
 n = 5;                                      <span class="comment">% Number of different selectable measurements</span>
-x_var = (0:1/(n-1):1)'                      <span class="comment">% Selectable measurements</span>
+t_var = (0:10/(n-1):10)'                    <span class="comment">% Selectable measurements</span>
 v_var = 10^-2 * ones(1, n)'                 <span class="comment">% Variances of measurement results at these measurements</span>
 
-sol = solver(model, p0, x_var, v_var);      <span class="comment">% Create the solver object</span>
+sol = solver(model, p0, t_var, v_var);      <span class="comment">% Create the solver object</span>
 </pre><pre class="codeoutput">
 p =
 
+     2
      1
 
 
 p0 =
 
-    1.8147
+    2.4649
+    0.6576
 
 
-x_var =
+t_var =
 
          0
-    0.2500
-    0.5000
-    0.7500
-    1.0000
+    2.5000
+    5.0000
+    7.5000
+   10.0000
 
 
 v_var =
@@ -106,16 +112,17 @@ v_var =
     0.0100
     0.0100
 
-</pre><h2 id="3">Calculate optimal measurements</h2><pre class="codeinput">max = 3;                                    <span class="comment">% Maximal number of measurements to choose</span>
-x_opt = sol.get_optimal_measurements(max)   <span class="comment">% Calculate the optimal measurements of the selectable measurements</span>
-</pre><pre class="codeoutput">
-x_opt =
+</pre><h2 id="3">Calculate optimal measurements</h2><pre class="codeinput">max = 2;                                    <span class="comment">% Maximal number of measurements to choose</span>
+t_opt = sol.get_optimal_measurements(max)   <span class="comment">% Calculate the optimal measurements of the selectable measurements</span>
+</pre><pre class="codeoutput">Starting parallel pool (parpool) using the 'local' profile ... connected to 2 workers.
 
-    0.5000
-    0.7500
-    1.0000
+t_opt =
 
-</pre><h2 id="4">Calculate quality of measurements</h2><p>The smaller the value, the better the quality.</p><pre class="codeinput">w_opt = sol.get_optimal_weights(max)            <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
+    5.0000
+    7.5000
+
+</pre><h2 id="4">Calculate quality of measurements</h2><p>The smaller the value, the better the quality.</p><pre class="codeinput">sol.set_option(<span class="string">'edo_algorithm'</span>, <span class="string">'direct'</span>);      <span class="comment">% Use direct solver in calculation of optimal weights</span>
+w_opt = sol.get_optimal_weights(max)            <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
 quality_opt = sol.get_quality(w_opt)            <span class="comment">% Calculate quality resulting from optimal measurements</span>
 w_subopt = [ones(max, 1); zeros(n-max, 1)]      <span class="comment">% Suboptimal weights</span>
 quality_subopt = sol.get_quality(w_subopt)      <span class="comment">% Calculate quality resulting from suboptimal measurements</span>
@@ -126,41 +133,42 @@ w_opt =
 
    0
    0
-   1
+   0
    1
    1
 
 
 quality_opt =
 
-    0.0017
+   2.0402e-04
 
 
 w_subopt =
 
      1
      1
-     1
+     0
      0
      0
 
 
 quality_subopt =
 
-    0.0097
+    0.0132
 
 </pre><h2 id="5">Estimate model parameter from accomplished measurements</h2><pre class="codeinput">m = 5;                                                                          <span class="comment">% Number of accomplished measurements</span>
-x_fix = x_opt;                                                                  <span class="comment">% Accomplished measurements</span>
+t_fix = t_opt;                                                                  <span class="comment">% Accomplished measurements</span>
 v_fix = v_var(w_opt);                                                           <span class="comment">% Variances of measurement results at these measurements</span>
-eta = model_util.get_fictitious_measurement_results(model, p, x_fix, v_fix);    <span class="comment">% Measurement results of the accomplished measurements</span>
-sol.set_accomplished_measurements(x_fix, v_fix, eta);                           <span class="comment">% Pass accomplished measurements to the solver object</span>
-p_lb = 0;                                                                       <span class="comment">% Lower bound of model parameter</span>
-p_ub = 2;                                                                       <span class="comment">% Upper bound of model parameter</span>
+eta = model_util.get_fictitious_measurement_results(model, p, t_fix, v_fix);    <span class="comment">% Measurement results of the accomplished measurements</span>
+sol.set_accomplished_measurements(t_fix, v_fix, eta);                           <span class="comment">% Pass accomplished measurements to the solver object</span>
+p_lb = [0; 0];                                                                  <span class="comment">% Lower bounds of model parameters</span>
+p_ub = [10; 5];                                                                 <span class="comment">% Upper bounds of model parameters</span>
 p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  <span class="comment">% Optimize model parameter from accomplished measurements</span>
 </pre><pre class="codeoutput">
 p_opt =
 
-    1.0005
+    1.9943
+    1.0057
 
 </pre><h2 id="6">Calculate gain of additional measurements</h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max)';         <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
@@ -169,16 +177,16 @@ quality_new = sol.get_quality(w_opt)           <span class="comment">% Calculate
 </pre><pre class="codeoutput">
 quality_old =
 
-    0.0055
+   2.2322e-04
 
 
 quality_new =
 
-    0.0028
+   3.9895e-05
 
-</pre><h2 id="7">Calculate optimal measurements with constraints</h2><p>We are constraining the choice of measurements in such a way that distance between two chosen measurements has to be at least 0.75.</p><pre class="codeinput">A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1) + diag(ones(n-2, 1), 2)    <span class="comment">% Matrix for the constraints of the measurements</span>
+</pre><h2 id="7">Calculate optimal measurements with constraints</h2><p>We are constraining the choice of measurements in such a way that distance between two chosen measurements has to be at least 7.5.</p><pre class="codeinput">A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1) + diag(ones(n-2, 1), 2)    <span class="comment">% Matrix for the constraints of the measurements</span>
 b = ones(n, 1)                                                          <span class="comment">% Vector for the constraints of the measurements</span>
-x_opt = sol.get_optimal_measurements(A, b)                              <span class="comment">% Calculate the optimal measurements of the selectable measurements considering the constraints</span>
+t_opt = sol.get_optimal_measurements(A, b)                              <span class="comment">% Calculate the optimal measurements of the selectable measurements considering the constraints</span>
 </pre><pre class="codeoutput">
 A =
 
@@ -198,44 +206,50 @@ b =
      1
 
 
-x_opt =
+t_opt =
 
-    0.2500
-    1.0000
+    2.5000
+   10.0000
 
 </pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-%% Demo: explicit model, scalar model parameter, scalar measurement point
+%% Demo: inital value problem model (multidimensional model parameter vector, scalar measurement points)
 % Different use cases of the <matlab:doc('optimal_experimental_design_toolbox')
-% |Optimal Experimental Design Toolbox|> are illustrated here. This application
-% example is an explicit model with one model parameter and one-dimensional
-% measurement points.
+% |Optimal Experimental Design Toolbox|> are illustrated here. The applicaion
+% example is an inital value problem as model with multidimensional model
+% parameter vector and multidimensional measurements.
 
 
 %% Create the model object
-x = sym('x');                               % The independent variable
-p = sym('p');                               % The model parameter
-f = p * x;                                  % The model function
-model = model_explicit(f, p, x);            % Create the model object using model_explicit
+t = sym('t');                                   % The independent variable
+y = sym('y');                                   % The dependent variable
+a = sym('a');                                   % A model parameter
+y0 = sym('y0');                                 % The inital value as another model parameter (this could also be a fix scalar value)
+p = [a; y0];                                    % All model parameters as a vector
+f = y + a * t;                                  % The differential equation of the inital value problem
+t_interval = [0; 10];                           % The first value is the initial (time) point (y(t_span(1)) = y0), the second value is an upper bound up to where the model is maximally evaluated 
+model = model_ivp(f, p, y, y0, t, t_interval);  % Create the model object using model_ivp
+
 
 %% Create the solver object
-p = 1                                       % True parameter of the model
-p0 = (1 + rand()) * p                       % Guessed parameter value
+p = [2; 1]                                  % True parameters of the model
+p0 = p + rand(size(p)) - 0.5                % Guessed parameter values
 
 n = 5;                                      % Number of different selectable measurements
-x_var = (0:1/(n-1):1)'                      % Selectable measurements
+t_var = (0:10/(n-1):10)'                    % Selectable measurements
 v_var = 10^-2 * ones(1, n)'                 % Variances of measurement results at these measurements
 
-sol = solver(model, p0, x_var, v_var);      % Create the solver object
+sol = solver(model, p0, t_var, v_var);      % Create the solver object
 
 
 %% Calculate optimal measurements
-max = 3;                                    % Maximal number of measurements to choose
-x_opt = sol.get_optimal_measurements(max)   % Calculate the optimal measurements of the selectable measurements
+max = 2;                                    % Maximal number of measurements to choose
+t_opt = sol.get_optimal_measurements(max)   % Calculate the optimal measurements of the selectable measurements
 
 
 %% Calculate quality of measurements
 % The smaller the value, the better the quality.
+sol.set_option('edo_algorithm', 'direct');      % Use direct solver in calculation of optimal weights
 w_opt = sol.get_optimal_weights(max)            % Calculate the optimal weights of the selectable measurements
 quality_opt = sol.get_quality(w_opt)            % Calculate quality resulting from optimal measurements
 w_subopt = [ones(max, 1); zeros(n-max, 1)]      % Suboptimal weights
@@ -244,12 +258,12 @@ quality_subopt = sol.get_quality(w_subopt)      % Calculate quality resulting fr
 
 %% Estimate model parameter from accomplished measurements
 m = 5;                                                                          % Number of accomplished measurements
-x_fix = x_opt;                                                                  % Accomplished measurements
+t_fix = t_opt;                                                                  % Accomplished measurements
 v_fix = v_var(w_opt);                                                           % Variances of measurement results at these measurements
-eta = model_util.get_fictitious_measurement_results(model, p, x_fix, v_fix);    % Measurement results of the accomplished measurements
-sol.set_accomplished_measurements(x_fix, v_fix, eta);                           % Pass accomplished measurements to the solver object
-p_lb = 0;                                                                       % Lower bound of model parameter
-p_ub = 2;                                                                       % Upper bound of model parameter
+eta = model_util.get_fictitious_measurement_results(model, p, t_fix, v_fix);    % Measurement results of the accomplished measurements
+sol.set_accomplished_measurements(t_fix, v_fix, eta);                           % Pass accomplished measurements to the solver object
+p_lb = [0; 0];                                                                  % Lower bounds of model parameters
+p_ub = [10; 5];                                                                 % Upper bounds of model parameters
 p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  % Optimize model parameter from accomplished measurements
 
 
@@ -262,10 +276,10 @@ quality_new = sol.get_quality(w_opt)           % Calculate quality resulting fro
 
 %% Calculate optimal measurements with constraints
 % We are constraining the choice of measurements in such a way that
-% distance between two chosen measurements has to be at least 0.75.
+% distance between two chosen measurements has to be at least 7.5.
 A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1) + diag(ones(n-2, 1), 2)    % Matrix for the constraints of the measurements
 b = ones(n, 1)                                                          % Vector for the constraints of the measurements
-x_opt = sol.get_optimal_measurements(A, b)                              % Calculate the optimal measurements of the selectable measurements considering the constraints
+t_opt = sol.get_optimal_measurements(A, b)                              % Calculate the optimal measurements of the selectable measurements considering the constraints
 
 
 ##### SOURCE END #####
