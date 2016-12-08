@@ -19,6 +19,7 @@
 % * <matlab:doc('model_explicit') |model_explicit|>                - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.
 % * <matlab:doc('model_ivp') |model_ivp|>                     - implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.
 % * <matlab:doc('model_fd') |model_fd|>              - implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
+% * <matlab:doc('model_composed') |model_composed|>              - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function including an inner model.
 
 %% Utilities
 % * <matlab:doc('optimal_experimental_design_toolbox.util') |util|>                          - represents an utility class with static auxiliary methods for the toolbox.

@@ -13,9 +13,10 @@
 %
 % Models.
 %   model              - represents an interface for a model.
-%   model_explicit     - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.
+%   model_explicit     - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given (symbolic) model function.
 %   model_ivp          - implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.
 %   model_fd           - implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
+%   model_composed     - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given (symbolic) model function including an inner model.
 %
 % Utilities.
 %   util               - represents an utility class with static auxiliary methods for the toolbox.
@@ -46,4 +47,3 @@
     <http://www.gnu.org/licenses/>.
 ---------------------------------------------------------------------------
 %}
-
