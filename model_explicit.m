@@ -1,5 +1,5 @@
 classdef model_explicit < model
-% MODEL_EXPLICIT implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given symbolic model function.
+% MODEL_EXPLICIT implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given (symbolic) model function.
 %
 % MODEL_EXPLICIT Methods:
 %    GET_M - returns the result of the model function with
