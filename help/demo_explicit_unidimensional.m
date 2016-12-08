@@ -6,9 +6,9 @@
 
 
 %% Create the model object
-x = 'x';                                    % The independent variable
-p = 'p';                                    % The model parameter
-f = 'p * x';                                % The model function
+x = sym('x');                               % The independent variable
+p = sym('p');                               % The model parameter
+f = p * x;                                  % The model function
 model = model_explicit(f, p, x);            % Create the model object using model_explicit
 
 %% Create the solver object

@@ -6,9 +6,13 @@
 
 
 %% Create the model object
-x = {'t', 's'};                                     % The independent variables
-p = {'a', 'b'};                                     % The model parameters
-f = 'a*t^2 + b*s';                                  % The model function
+t = sym('t');                                       % Create symbolic variable for model
+s = sym('s');                                       % Create symbolic variable for model
+a = sym('a');                                       % Create symbolic variable for model
+b = sym('b');                                       % Create symbolic variable for model
+x = [t, s];                                         % The independent variables
+p = [a, b];                                         % The model parameters
+f = a*t^2 + b*s;                                    % The model function
 model = model_explicit(f, p, x);                    % Create the model object using model_explicit
 
 %% Create the solver object
