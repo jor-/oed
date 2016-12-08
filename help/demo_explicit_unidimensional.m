@@ -55,8 +55,8 @@ quality_new = sol.get_quality(w_opt)           % Calculate quality resulting fro
 
 %% Calculate optimal measurements with constraints
 % We are constraining the choice of measurements in such a way that
-% distance between two chosen measurements has to be at least 0.5.
-A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1)  % Matrix for the constraints of the measurements
-b = ones(n, 1)                                % Vector for the constraints of the measurements
-x_opt = sol.get_optimal_measurements(A, b)    % Calculate the optimal measurements of the selectable measurements considering the constraints
+% distance between two chosen measurements has to be at least 0.75.
+A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1) + diag(ones(n-2, 1), 2)    % Matrix for the constraints of the measurements
+b = ones(n, 1)                                                          % Vector for the constraints of the measurements
+x_opt = sol.get_optimal_measurements(A, b)                              % Calculate the optimal measurements of the selectable measurements considering the constraints
 
