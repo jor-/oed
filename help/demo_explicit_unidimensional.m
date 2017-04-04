@@ -1,6 +1,6 @@
 %% Demo: explicit model, scalar model parameter, scalar measurement point
 % Different use cases of the <matlab:doc('optimal_experimental_design_toolbox')
-% |Optimal Experimental Design Toolbox|> are illustrated here. The applicaion
+% |Optimal Experimental Design Toolbox|> are illustrated here. This application
 % example is an explicit model with one model parameter and one-dimensional
 % measurement points.
 
