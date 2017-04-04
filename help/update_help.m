@@ -1,6 +1,6 @@
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2016 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2017 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -27,6 +27,8 @@ publish('users_guide.m','evalCode', false);
 publish('function_overview.m', 'showCode', false);
 publish('demo_explicit_unidimensional.m');
 publish('demo_explicit_multidimensional.m');
+publish('demo_general_model.m', 'evalCode', false);
+publish('demo_general_model_with_fd.m', 'evalCode', false);
 
 builddocsearchdb([pwd '/help/html']);
 
