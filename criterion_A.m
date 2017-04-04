@@ -5,13 +5,13 @@ classdef criterion_A < criterion
 %
 % CRITERION_A Methods:
 %    GET_PHI - returns the quality of the covariance matrix C.
-%    GET_DCD_PHI - returns the derivation in the direction D of the
+%    GET_DCD_PHI - returns the derivative in the direction D of the
 %                  quality of C.
-%    GET_DCD_DCD_PHI - returns the derivation with respect to C in the
-%                      direction E of the derivation in the direction D
+%    GET_DCD_DCD_PHI - returns the derivative with respect to C in the
+%                      direction E of the derivative in the direction D
 %                      of the quality of C.
-%    GET_DDD_DCD_PHI - returns the derivation with respect to D in the
-%                      direction E of the derivation in the direction D
+%    GET_DDD_DCD_PHI - returns the derivative with respect to D in the
+%                      direction E of the derivative in the direction D
 %                      of the quality of C.
 %
 % see also CRITERION
@@ -57,7 +57,7 @@ classdef criterion_A < criterion
         end
         
         function dCd_phi = get_dCd_phi(C, D)
-        % GET_DPD_PHI returns the derivation in the direction D of the quality of C.
+        % GET_DPD_PHI returns the derivative in the direction D of the quality of C.
         %
         % Example:
         %     DCD_PHI = CRITERION_OBJECT.GET_DCD_PHI(C, D)
@@ -67,14 +67,14 @@ classdef criterion_A < criterion
         %     D: the direction D of the derivate
         %
         % Output:
-        %     DCD_PHI: the derivation in the direction D of the quality of C
+        %     DCD_PHI: the derivative in the direction D of the quality of C
         %
             size_C = size(C);
             dCd_phi = trace(D) / size_C(1);
         end
         
         function dCd_dCd_phi = get_dCd_dCd_phi(C, D, E)
-        % GET_DCD_DCD_PHI returns the derivation with respect to C in the direction E of the derivation in the direction D of the quality of C.
+        % GET_DCD_DCD_PHI returns the derivative with respect to C in the direction E of the derivative in the direction D of the quality of C.
         %
         % Example:
         %     DCD_DCD_PHI = CRITERION_OBJECT.GET_DWD_PHI(C, D, E)
@@ -85,15 +85,15 @@ classdef criterion_A < criterion
         %     E: the direction E of the second derivate
         %
         % Output:
-        %     DCD_DCD_PHI: the derivation with respect to C in the direction
-        %                  E of the derivation in the direction D of the
+        %     DCD_DCD_PHI: the derivative with respect to C in the direction
+        %                  E of the derivative in the direction D of the
         %                  quality of C 
         %
             dCd_dCd_phi = 0;
         end
         
         function dDd_dCd_phi = get_dDd_dCd_phi(C, D, E)
-        % GET_DDD_DCD_PHI returns the derivation with respect to D in the direction E of the derivation in the direction D of the quality of C.
+        % GET_DDD_DCD_PHI returns the derivative with respect to D in the direction E of the derivative in the direction D of the quality of C.
         %
         % Example:
         %     DDD_DCD_PHI = CRITERION_OBJECT.GET_DWD_PHI(C, D, E)
@@ -104,8 +104,8 @@ classdef criterion_A < criterion
         %     E: the direction E of the second derivate
         %
         % Output:
-        %     DDD_DCD_PHI: the derivation with respect to D in the direction
-        %                  E of the derivation in the direction D of the
+        %     DDD_DCD_PHI: the derivative with respect to D in the direction
+        %                  E of the derivative in the direction D of the
         %                  quality of C 
         %
             size_C = size(C);

@@ -32,7 +32,7 @@ model_object = model_ivp(differential_equation, parameter_variables, ...
 
 %%
 % If you are using the <matlab:doc('model_ivp') |model_ivp|> class you can
-% obtain a speedup by calculating the necessary derivations of the model
+% obtain a speedup by calculating the necessary derivatives of the model
 % in parallel. To achieve that you only have to open a |matlabpool| before
 % the calulations. 
 

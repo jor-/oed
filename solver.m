@@ -1078,7 +1078,7 @@ classdef solver < handle
         end
                 
         function dp_Mt = get_dp_Mt(this, model, p, t)
-        % GET_DP_MT returns the first derivation of the MODEL with respect to the parameters P at the measurements T.
+        % GET_DP_MT returns the first derivative of the MODEL with respect to the parameters P at the measurements T.
         %
         % Example:
         %     DP_MT = SOLVER_OBJECT.GET_DP_MT(MODEL, P, T)
@@ -1086,11 +1086,11 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measurements for which the derivations will be 
+        %     T: the measurements for which the derivatives will be 
         %        calculated
         %
         % Output:
-        %     DP_MT: the first derivation of the MODEL with respect to the 
+        %     DP_MT: the first derivative of the MODEL with respect to the 
         %            parameters P at the measurements T
         %
         
@@ -1111,7 +1111,7 @@ classdef solver < handle
         end                        
                 
         function dpdp_Mt = get_dpdp_Mt(this, model, p, t)
-        % GET_DPDP_MT returns the second derivation of the MODEL with respect to the parameters P at the measurements T.
+        % GET_DPDP_MT returns the second derivative of the MODEL with respect to the parameters P at the measurements T.
         %
         % Example:
         %     DPDP_MT = SOLVER_OBJECT.GET_DPDP_MT(MODEL, P, T)
@@ -1119,11 +1119,11 @@ classdef solver < handle
         % Input:
         %     MODEL: a class that implements the MODEL interface
         %     P: the parameters for the MODEL
-        %     T: the measurements for which the derivations will be 
+        %     T: the measurements for which the derivatives will be 
         %        calculated
         %
         % Output:
-        %     DPDP_MT: the second derivation of the MODEL with respect to 
+        %     DPDP_MT: the second derivative of the MODEL with respect to 
         %              the parameters P at the measurements T
         %
         
@@ -1201,7 +1201,7 @@ classdef solver < handle
         end
                 
         function dw_C = get_dw_C(this, model, p, t, v, w_var, S)
-        % GET_DW_C returns the derivation of the associated covariance matrix with respect to the weights W.
+        % GET_DW_C returns the derivative of the associated covariance matrix with respect to the weights W.
         %
         % Example:
         %     DW_C = SOLVER_OBJECT.GET_DW_C(MODEL, P, T, V, W)
@@ -1215,7 +1215,7 @@ classdef solver < handle
         %     S: the scaling matrix for the parameters
         %
         % Output:
-        %     DW_C: the derivation of the associated covariance matrix with
+        %     DW_C: the derivative of the associated covariance matrix with
         %           respect to the weights W
         %
         
@@ -1240,7 +1240,7 @@ classdef solver < handle
         end
                 
         function dp_C = get_dp_C(this, model, p, t, v, w_var, S)
-        % GET_DP_C returns the derivation of the associated covariance matrix with respect to the parameters P.
+        % GET_DP_C returns the derivative of the associated covariance matrix with respect to the parameters P.
         %
         % Example:
         %     DP_C = SOLVER_OBJECT.GET_DP_C(MODEL, P, T, V, W)
@@ -1254,7 +1254,7 @@ classdef solver < handle
         %     S: the scaling matrix for the parameters
         %
         % Output:
-        %     C: the derivation of the associated covariance matrix with 
+        %     C: the derivative of the associated covariance matrix with 
         %        respect to the parameters P
         %
         
@@ -1318,7 +1318,7 @@ classdef solver < handle
         end        
         
         function dw_H = get_dw_H(this, model, p, t, v, w_var, S)
-        % GET_H returns the derivation of the associated auxiliary matrix H with respect to the weights W.
+        % GET_H returns the derivative of the associated auxiliary matrix H with respect to the weights W.
         %
         % Example:
         %     DW_H = SOLVER_OBJECT.GET_DW_H(MODEL, P, T, V, W)
@@ -1332,7 +1332,7 @@ classdef solver < handle
         %     S: the scaling matrix for the parameters
         %
         % Output:
-        %     dw_H: the derivation of the associated auxiliary matrix H 
+        %     dw_H: the derivative of the associated auxiliary matrix H 
         %           with respect to the weights W
         %
             
@@ -1390,7 +1390,7 @@ classdef solver < handle
         end    
         
         function dp_phi = get_dp_phi(this, model, p, t, v, w_var, S, criterion)
-        % GET_DP_PHI returns the derivation with respect to the parameters P of the quality resulting of the weights W, for a model in which the parameters appear linearly.
+        % GET_DP_PHI returns the derivative with respect to the parameters P of the quality resulting of the weights W, for a model in which the parameters appear linearly.
         %
         % Example:
         %     DP_PHI = SOLVER_OBJECT.GET_DP_PHI(MODEL, P, T, V, W, CRITERION)
@@ -1405,7 +1405,7 @@ classdef solver < handle
         %     CRITERION: a class that implements the CRITERION interface
         %
         % Output:
-        %     DP_PHI: the derivation with respect to the parameters P of
+        %     DP_PHI: the derivative with respect to the parameters P of
         %             the quality resulting of the weights W
         %
         
@@ -1426,7 +1426,7 @@ classdef solver < handle
         end        
                 
         function dw_phi = get_dw_phi(this, model, p, t, v, w_var, S, criterion)
-        % GET_DW_PHI returns the derivation with respect to the weights W of the quality resulting of the weights W, for a model in which the parameters appear linearly.
+        % GET_DW_PHI returns the derivative with respect to the weights W of the quality resulting of the weights W, for a model in which the parameters appear linearly.
         %
         % Example:
         %     DW_PHI = SOLVER_OBJECT.GET_DW_PHI(MODEL, P, T, V, W, CRITERION)
@@ -1441,7 +1441,7 @@ classdef solver < handle
         %     CRITERION: a class that implements the CRITERION interface
         %
         % Output:
-        %     DW_PHI: the derivation with respect to the weights W of 
+        %     DW_PHI: the derivative with respect to the weights W of 
         %             the quality resulting of the weights W
         %
         
@@ -1462,7 +1462,7 @@ classdef solver < handle
         end
                 
         function dwdp_phi = get_dwdp_phi(this, model, p, t, v, w_var, S, criterion)
-        % GET_DWDP_PHI returns the derivation with respect to the parameters P and then to the weights W of the quality resulting of the weights W, for a model in which the parameters appear linearly.
+        % GET_DWDP_PHI returns the derivative with respect to the parameters P and then to the weights W of the quality resulting of the weights W, for a model in which the parameters appear linearly.
         %
         % Example:
         %     DWDP_PHI = SOLVER_OBJECT.GET_DWDP_PHI(MODEL, P, T, V, W, CRITERION)
@@ -1477,7 +1477,7 @@ classdef solver < handle
         %     CRITERION: a class that implements the CRITERION interface
         %
         % Output:
-        %     DWDP_PHI: the derivation with respect to the parameters P and
+        %     DWDP_PHI: the derivative with respect to the parameters P and
         %               then to the weights W of the quality resulting
         %               of the weights W
         %
@@ -1574,7 +1574,7 @@ classdef solver < handle
         end
         
         function dw_phiR = get_dw_phiR(this, model, p, t, v, w_var, S, criterion, g)
-        % GET_DW_PHIR returns the derivation with respect to the weights W of the quality resulting of the weights W.
+        % GET_DW_PHIR returns the derivative with respect to the weights W of the quality resulting of the weights W.
         %
         % Example:
         %     DW_PHIR = SOLVER_OBJECT.GET_DW_PHIR(MODEL, P, T, V, W, S, CRITERION, G)
@@ -1592,7 +1592,7 @@ classdef solver < handle
         %        optimized
         %
         % Output:
-        %     DW_PHIR: the derivation with respect to the weights W of
+        %     DW_PHIR: the derivative with respect to the weights W of
         %              the quality resulting of the weights W
         %
 
