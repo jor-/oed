@@ -63,6 +63,14 @@
 			<tocitem target="demo_explicit_multidimensional.html#5">Gain of additional measurements</tocitem>
 			<tocitem target="demo_explicit_multidimensional.html#6">Optimal measurements with constraints</tocitem>
         </tocitem>
+        
+        <tocitem target="demo_general_model_with_fd.html" 
+                 image="HelpIcon.DEMOS">Demo (general model with finite differences)
+        </tocitem>
+        
+        <tocitem target="demo_general_model.html" 
+                 image="HelpIcon.DEMOS">Demo (general model)
+        </tocitem>
 
         <!-- Optional link or links to your or other Web sites -->
         <tocitem target="http://github.com/jor-/oed" 

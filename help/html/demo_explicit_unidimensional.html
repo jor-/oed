@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Demo: explicit model, scalar model parameter, scalar measurement point</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-02"><meta name="DC.source" content="demo_explicit_unidimensional.m"><style type="text/css">
+      --><title>Demo: explicit model, scalar model parameter, scalar measurement point</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-04"><meta name="DC.source" content="demo_explicit_unidimensional.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,11 +66,14 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Demo: explicit model, scalar model parameter, scalar measurement point</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here. The applicaion example is an explicit model with one model parameter and one-dimensional measurement points.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model object</a></li><li><a href="#2">Create the solver object</a></li><li><a href="#3">Calculate optimal measurements</a></li><li><a href="#4">Calculate quality of measurements</a></li><li><a href="#5">Estimate model parameter from accomplished measurements</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2>Create the model object<a name="1"></a></h2><pre class="codeinput">x = <span class="string">'x'</span>;                                    <span class="comment">% The independent variable</span>
+  </style></head><body><div class="content"><h1>Demo: explicit model, scalar model parameter, scalar measurement point</h1><!--introduction--><p>Different use cases of the <a href="matlab:doc('optimal_experimental_design_toolbox')"><tt>Optimal Experimental Design Toolbox</tt></a> are illustrated here. This application example is an explicit model with one model parameter and one-dimensional measurement points.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the model object</a></li><li><a href="#2">Create the solver object</a></li><li><a href="#3">Calculate optimal measurements</a></li><li><a href="#4">Calculate quality of measurements</a></li><li><a href="#5">Estimate model parameter from accomplished measurements</a></li><li><a href="#6">Calculate gain of additional measurements</a></li><li><a href="#7">Calculate optimal measurements with constraints</a></li></ul></div><h2 id="1">Create the model object</h2><pre class="codeinput">x = <span class="string">'x'</span>;                                    <span class="comment">% The independent variable</span>
 p = <span class="string">'p'</span>;                                    <span class="comment">% The model parameter</span>
 f = <span class="string">'p * x'</span>;                                <span class="comment">% The model function</span>
 model = model_explicit(f, p, x);            <span class="comment">% Create the model object using model_explicit</span>
-</pre><h2>Create the solver object<a name="2"></a></h2><pre class="codeinput">p = 1                                       <span class="comment">% True parameter of the model</span>
+</pre><pre class="codeoutput">Warning: Support of character vectors that are not valid variable names or
+define a number will be removed in a future release. To create symbolic
+expressions, first create symbolic variables and then use operations on them. 
+</pre><h2 id="2">Create the solver object</h2><pre class="codeinput">p = 1                                       <span class="comment">% True parameter of the model</span>
 p0 = (1 + rand()) * p                       <span class="comment">% Guessed parameter value</span>
 
 n = 5;                                      <span class="comment">% Number of different selectable measurements</span>
@@ -86,7 +89,7 @@ p =
 
 p0 =
 
-    1.4898
+    1.9649
 
 
 x_var =
@@ -106,7 +109,7 @@ v_var =
     0.0100
     0.0100
 
-</pre><h2>Calculate optimal measurements<a name="3"></a></h2><pre class="codeinput">max = 3;                                    <span class="comment">% Maximal number of measurements to choose</span>
+</pre><h2 id="3">Calculate optimal measurements</h2><pre class="codeinput">max = 3;                                    <span class="comment">% Maximal number of measurements to choose</span>
 x_opt = sol.get_optimal_measurements(max)   <span class="comment">% Calculate the optimal measurements of the selectable measurements</span>
 </pre><pre class="codeoutput">
 x_opt =
@@ -115,23 +118,25 @@ x_opt =
     0.7500
     1.0000
 
-</pre><h2>Calculate quality of measurements<a name="4"></a></h2><p>The smaller the value, the better the quality.</p><pre class="codeinput">w_opt = sol.get_optimal_weights(max)            <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
+</pre><h2 id="4">Calculate quality of measurements</h2><p>The smaller the value, the better the quality.</p><pre class="codeinput">w_opt = sol.get_optimal_weights(max)            <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
 quality_opt = sol.get_quality(w_opt)            <span class="comment">% Calculate quality resulting from optimal measurements</span>
 w_subopt = [ones(max, 1); zeros(n-max, 1)]      <span class="comment">% Suboptimal weights</span>
 quality_subopt = sol.get_quality(w_subopt)      <span class="comment">% Calculate quality resulting from suboptimal measurements</span>
 </pre><pre class="codeoutput">
 w_opt =
 
-     0
-     0
-     1
-     1
-     1
+  5&times;1 logical array
+
+   0
+   0
+   1
+   1
+   1
 
 
 quality_opt =
 
-    0.0025
+    0.0014
 
 
 w_subopt =
@@ -145,9 +150,9 @@ w_subopt =
 
 quality_subopt =
 
-    0.0144
+    0.0083
 
-</pre><h2>Estimate model parameter from accomplished measurements<a name="5"></a></h2><pre class="codeinput">m = 5;                                                                          <span class="comment">% Number of accomplished measurements</span>
+</pre><h2 id="5">Estimate model parameter from accomplished measurements</h2><pre class="codeinput">m = 5;                                                                          <span class="comment">% Number of accomplished measurements</span>
 x_fix = x_opt;                                                                  <span class="comment">% Accomplished measurements</span>
 v_fix = v_var(w_opt);                                                           <span class="comment">% Variances of measurement results at these measurements</span>
 eta = model_util.get_fictitious_measurement_results(model, p, x_fix, v_fix);    <span class="comment">% Measurement results of the accomplished measurements</span>
@@ -158,9 +163,9 @@ p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  
 </pre><pre class="codeoutput">
 p_opt =
 
-    1.0082
+    1.0128
 
-</pre><h2>Calculate gain of additional measurements<a name="6"></a></h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
+</pre><h2 id="6">Calculate gain of additional measurements</h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max)';         <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
 quality_old = sol.get_quality(zeros(n, 1))     <span class="comment">% Calculate quality without additional measurements</span>
 quality_new = sol.get_quality(w_opt)           <span class="comment">% Calculate quality resulting from optimal additional measurements</span>
@@ -174,7 +179,7 @@ quality_new =
 
     0.0027
 
-</pre><h2>Calculate optimal measurements with constraints<a name="7"></a></h2><p>We are constraining the choice of measurements in such a way that distance between two chosen measurements has to be at least 0.5.</p><pre class="codeinput">A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1)  <span class="comment">% Matrix for the constraints of the measurements</span>
+</pre><h2 id="7">Calculate optimal measurements with constraints</h2><p>We are constraining the choice of measurements in such a way that distance between two chosen measurements has to be at least 0.5.</p><pre class="codeinput">A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1)  <span class="comment">% Matrix for the constraints of the measurements</span>
 b = ones(n, 1)                                <span class="comment">% Vector for the constraints of the measurements</span>
 x_opt = sol.get_optimal_measurements(A, b)    <span class="comment">% Calculate the optimal measurements of the selectable measurements considering the constraints</span>
 </pre><pre class="codeoutput">
@@ -202,11 +207,11 @@ x_opt =
     0.5000
     1.0000
 
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Demo: explicit model, scalar model parameter, scalar measurement point
 % Different use cases of the <matlab:doc('optimal_experimental_design_toolbox')
-% |Optimal Experimental Design Toolbox|> are illustrated here. The applicaion
+% |Optimal Experimental Design Toolbox|> are illustrated here. This application
 % example is an explicit model with one model parameter and one-dimensional
 % measurement points.
 
