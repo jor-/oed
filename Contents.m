@@ -1,33 +1,33 @@
 % Optimal Experimental Design Toolbox
-% Version 1.0.3 02-Dez-2016 
+% Version 1.0.4 04-Apr-2017
 %
 % Solver.
-% solver               - allows to calculate and optimize the quality of experimental designs and allows to calculate a parameter estimation resulting from accomplished measurements.
-% solver_options       - represents the options for a solver object.
-% solver_edo_options   - represents the options for the solver of the experimental design optimization problem.
-% solver_po_options    - represents the options for the solver of the parameter optimization problem.
+%   solver             - allows to calculate and optimize the quality of experimental designs and allows to calculate a parameter estimation resulting from accomplished measurements.
+%   solver_options     - represents the options for a solver object.
+%   solver_edo_options - represents the options for the solver of the experimental design optimization problem.
+%   solver_po_options  - represents the options for the solver of the parameter optimization problem.
 %
 % Criteria.
-% criterion            - represents an interface for a quality criterion.
-% criterion_A          - is the quality criterion that uses the average variance as the quality.
+%   criterion          - represents an interface for a quality criterion.
+%   criterion_A        - is the quality criterion that uses the average variance as the quality.
 %
 % Models.
-% model                - represents an interface for a model.
-% model_explicit       - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.
-% model_ivp            - implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.
-% model_fd             - implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
+%   model              - represents an interface for a model.
+%   model_explicit     - implements the model interface and provides the function value and the first and second derivatives with respect to the parameters of an explicitly given model function.
+%   model_ivp          - implements the model interface and provides the solution of an initial value problem and its first and second derivatives with respect to the parameters.
+%   model_fd           - implements the model interface and provides the first and second derivatives with respect to the parameters by finite differences approximations.
 %
 % Utilities.
-% util                 - represents an utility class with static auxiliary methods for the toolbox.
+%   util               - represents an utility class with static auxiliary methods for the toolbox.
 %
 % Application examples.
-% model_C2             - models the concentration C of the suspended sediment above the marsh surface with two parameters.
-% model_C3             - models the concentration C of the suspended sediment above the marsh surface with three parameters.
-% model_util           - represents an utility class with static auxiliary methods for working with model classes.
+%   model_C2           - models the concentration C of the suspended sediment above the marsh surface with two parameters.
+%   model_C3           - models the concentration C of the suspended sediment above the marsh surface with three parameters.
+%   model_util         - represents an utility class with static auxiliary methods for working with model classes.
 
 %{
 ---------------------------------------------------------------------------
-    Copyright (C) 2010-2016 Joscha Reimer jor@informatik.uni-kiel.de
+    Copyright (C) 2010-2017 Joscha Reimer jor@informatik.uni-kiel.de
 
     This file is part of the Optimal Experimental Design Toolbox.
 
@@ -46,3 +46,4 @@
     <http://www.gnu.org/licenses/>.
 ---------------------------------------------------------------------------
 %}
+
