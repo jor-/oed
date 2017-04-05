@@ -1164,7 +1164,7 @@ classdef solver < handle
         % GET_C returns the associated covariance matrix.
         %
         % Example:
-        %     C = SOLVER_OBJECT.GET_C(MODEL, P, T, V, W)
+        %     C = SOLVER_OBJECT.GET_C(MODEL, P, T, V, W_VAR, S)
         %
         % Input:
         %     MODEL: a class that implements the MODEL interface
@@ -1204,7 +1204,7 @@ classdef solver < handle
         % GET_DW_C returns the derivative of the associated covariance matrix with respect to the weights W.
         %
         % Example:
-        %     DW_C = SOLVER_OBJECT.GET_DW_C(MODEL, P, T, V, W)
+        %     DW_C = SOLVER_OBJECT.GET_DW_C(MODEL, P, T, V, W_VAR, S)
         %
         % Input:
         %     MODEL: a class that implements the MODEL interface
@@ -1243,7 +1243,7 @@ classdef solver < handle
         % GET_DP_C returns the derivative of the associated covariance matrix with respect to the parameters P.
         %
         % Example:
-        %     DP_C = SOLVER_OBJECT.GET_DP_C(MODEL, P, T, V, W)
+        %     DP_C = SOLVER_OBJECT.GET_DP_C(MODEL, P, T, V, W_VAR, S)
         %
         % Input:
         %     MODEL: a class that implements the MODEL interface
@@ -1280,7 +1280,7 @@ classdef solver < handle
         % GET_H returns the associated auxiliary matrix H.
         %
         % Example:
-        %     H = SOLVER_OBJECT.GET_H(MODEL, P, T, V, W)
+        %     H = SOLVER_OBJECT.GET_H(MODEL, P, T, V, W_VAR, S)
         %
         % Input:
         %     MODEL: a class that implements the MODEL interface
@@ -1321,7 +1321,7 @@ classdef solver < handle
         % GET_H returns the derivative of the associated auxiliary matrix H with respect to the weights W.
         %
         % Example:
-        %     DW_H = SOLVER_OBJECT.GET_DW_H(MODEL, P, T, V, W)
+        %     DW_H = SOLVER_OBJECT.GET_DW_H(MODEL, P, T, V, W_VAR, S)
         %
         % Input:
         %     MODEL: a class that implements the MODEL interface
