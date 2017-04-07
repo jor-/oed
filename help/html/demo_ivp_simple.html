@@ -91,8 +91,8 @@ p =
 
 p0 =
 
-    2.4649
-    0.6576
+    2.3491
+    1.4340
 
 
 t_var =
@@ -114,8 +114,7 @@ v_var =
 
 </pre><h2 id="3">Calculate optimal measurements</h2><pre class="codeinput">max = 2;                                    <span class="comment">% Maximal number of measurements to choose</span>
 t_opt = sol.get_optimal_measurements(max)   <span class="comment">% Calculate the optimal measurements of the selectable measurements</span>
-</pre><pre class="codeoutput">Starting parallel pool (parpool) using the 'local' profile ... connected to 2 workers.
-
+</pre><pre class="codeoutput">
 t_opt =
 
     5.0000
@@ -140,7 +139,7 @@ w_opt =
 
 quality_opt =
 
-   2.0402e-04
+   5.4992e-05
 
 
 w_subopt =
@@ -154,7 +153,7 @@ w_subopt =
 
 quality_subopt =
 
-    0.0132
+    0.0042
 
 </pre><h2 id="5">Estimate model parameter from accomplished measurements</h2><pre class="codeinput">m = 5;                                                                          <span class="comment">% Number of accomplished measurements</span>
 t_fix = t_opt;                                                                  <span class="comment">% Accomplished measurements</span>
@@ -167,8 +166,8 @@ p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  
 </pre><pre class="codeoutput">
 p_opt =
 
-    1.9943
-    1.0057
+    1.9992
+    1.0008
 
 </pre><h2 id="6">Calculate gain of additional measurements</h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max)';         <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
@@ -177,12 +176,12 @@ quality_new = sol.get_quality(w_opt)           <span class="comment">% Calculate
 </pre><pre class="codeoutput">
 quality_old =
 
-   2.2322e-04
+   2.2475e-04
 
 
 quality_new =
 
-   3.9895e-05
+   4.0168e-05
 
 </pre><h2 id="7">Calculate optimal measurements with constraints</h2><p>We are constraining the choice of measurements in such a way that distance between two chosen measurements has to be at least 7.5.</p><pre class="codeinput">A = diag(ones(n, 1)) + diag(ones(n-1, 1), 1) + diag(ones(n-2, 1), 2)    <span class="comment">% Matrix for the constraints of the measurements</span>
 b = ones(n, 1)                                                          <span class="comment">% Vector for the constraints of the measurements</span>

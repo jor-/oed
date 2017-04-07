@@ -86,7 +86,7 @@ p =
 
 p0 =
 
-    1.8147
+    1.4854
 
 
 x_var =
@@ -133,7 +133,7 @@ w_opt =
 
 quality_opt =
 
-    0.0017
+    0.0025
 
 
 w_subopt =
@@ -147,7 +147,7 @@ w_subopt =
 
 quality_subopt =
 
-    0.0097
+    0.0145
 
 </pre><h2 id="5">Estimate model parameter from accomplished measurements</h2><pre class="codeinput">m = 5;                                                                          <span class="comment">% Number of accomplished measurements</span>
 x_fix = x_opt;                                                                  <span class="comment">% Accomplished measurements</span>
@@ -160,7 +160,7 @@ p_opt = sol.get_optimal_parameters(p_lb, p_ub)                                  
 </pre><pre class="codeoutput">
 p_opt =
 
-    1.0005
+    1.0004
 
 </pre><h2 id="6">Calculate gain of additional measurements</h2><pre class="codeinput">sol.set_initial_parameter_estimation(p_opt);   <span class="comment">% Update parameter estimation</span>
 w_opt = sol.get_optimal_weights(max)';         <span class="comment">% Calculate the optimal weights of the selectable measurements</span>
